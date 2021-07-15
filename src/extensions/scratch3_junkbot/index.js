@@ -1,6 +1,6 @@
-//const wsServer = require('./wsServer'); // or './wsServer'
-//let com_path = wsServer.findCom();
-//console.log(com_path);
+const wsServer = require('./serialport/wsServer'); // or './wsServer'
+let com_path = wsServer.findCom();
+console.log(com_path);
 
 const ArgumentType = require('../../extension-support/argument-type');
 const BlockType = require('../../extension-support/block-type');
