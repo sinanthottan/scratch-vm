@@ -42,7 +42,7 @@ const BLESendInterval = 100;
  * A string to report to the BLE socket when the micro:bit has stopped receiving data.
  * @type {string}
  */
-const BLEDataStoppedError = 'micro:bit extension stopped receiving data';
+const BLEDataStoppedError = 'Junkbot extension stopped receiving data';
 
 /**
  * Enum for micro:bit protocol.
@@ -59,7 +59,7 @@ const BLEUUID = {
 /**
  * Manage communication with a MicroBit peripheral over a Scrath Link client socket.
  */
-class MicroBit {
+class Junkbot {
 
     /**
      * Construct a MicroBit communication object.
@@ -306,15 +306,15 @@ class MicroBit {
 
     /**
      * Starts reading data from peripheral after BLE has connected to it.
-     * @private
+     *# @private
      */
-    _onConnect () {
+    /*_onConnect () {
         this._ble.read(BLEUUID.service, BLEUUID.rxChar, true, this._onMessage);
         this._timeoutID = window.setTimeout(
             () => this._ble.handleDisconnectError(BLEDataStoppedError),
             BLETimeout
         );
-    }
+    }*/
 
     /**
      * Process the sensor data from the incoming BLE characteristic.
@@ -362,7 +362,7 @@ class MicroBit {
  * @readonly
  * @enum {string}
  */
-const MicroBitTiltDirection = {
+const JunkbotTiltDirection = {
     FRONT: 'front',
     BACK: 'back',
     LEFT: 'left',
@@ -375,7 +375,7 @@ const MicroBitTiltDirection = {
  * @readonly
  * @enum {string}
  */
-const MicroBitGestures = {
+const JunkbotGestures = {
     MOVED: 'moved',
     SHAKEN: 'shaken',
     JUMPED: 'jumped'
@@ -386,7 +386,7 @@ const MicroBitGestures = {
  * @readonly
  * @enum {string}
  */
-const MicroBitButtons = {
+const JunkbotButtons = {
     A: 'A',
     B: 'B',
     ANY: 'any'
@@ -397,28 +397,28 @@ const MicroBitButtons = {
  * @readonly
  * @enum {string}
  */
-const MicroBitPinState = {
+const JunkbotPinState = {
     ON: 'on',
     OFF: 'off'
 };
 
 /**
- * Scratch 3.0 blocks to interact with a MicroBit peripheral.
+ * Scratch 3.0 blocks to interact with a Junkbot peripheral.
  */
-class Scratch3MicroBitBlocks {
+class Scratch3JunkbotBlocks {
 
     /**
      * @return {string} - the name of this extension.
      */
     static get EXTENSION_NAME () {
-        return 'micro:bit';
+        return 'junkbot';
     }
 
     /**
      * @return {string} - the ID of this extension.
      */
     static get EXTENSION_ID () {
-        return 'microbit';
+        return 'junkbot';
     }
 
     /**
@@ -435,19 +435,19 @@ class Scratch3MicroBitBlocks {
         return [
             {
                 text: 'A',
-                value: MicroBitButtons.A
+                value: JunkbotButtons.A
             },
             {
                 text: 'B',
-                value: MicroBitButtons.B
+                value: JunkbotButtons.B
             },
             {
                 text: formatMessage({
-                    id: 'microbit.buttonsMenu.any',
+                    id: 'junkbot.buttonsMenu.any',
                     default: 'any',
-                    description: 'label for "any" element in button picker for micro:bit extension'
+                    description: 'label for "any" element in button picker for Junkbot extension'
                 }),
-                value: MicroBitButtons.ANY
+                value: JunkbotButtons.ANY
             }
         ];
     }
@@ -459,27 +459,27 @@ class Scratch3MicroBitBlocks {
         return [
             {
                 text: formatMessage({
-                    id: 'microbit.gesturesMenu.moved',
+                    id: 'junkbot.gesturesMenu.moved',
                     default: 'moved',
-                    description: 'label for moved gesture in gesture picker for micro:bit extension'
+                    description: 'label for moved gesture in gesture picker for Junkbot extension'
                 }),
-                value: MicroBitGestures.MOVED
+                value: JunkbotGestures.MOVED
             },
             {
                 text: formatMessage({
-                    id: 'microbit.gesturesMenu.shaken',
+                    id: 'junkbot.gesturesMenu.shaken',
                     default: 'shaken',
-                    description: 'label for shaken gesture in gesture picker for micro:bit extension'
+                    description: 'label for shaken gesture in gesture picker for Junkbot extension'
                 }),
-                value: MicroBitGestures.SHAKEN
+                value: JunkbotGestures.SHAKEN
             },
             {
                 text: formatMessage({
-                    id: 'microbit.gesturesMenu.jumped',
+                    id: 'junkbot.gesturesMenu.jumped',
                     default: 'jumped',
-                    description: 'label for jumped gesture in gesture picker for micro:bit extension'
+                    description: 'label for jumped gesture in gesture picker for Junkbot extension'
                 }),
-                value: MicroBitGestures.JUMPED
+                value: JunkbotGestures.JUMPED
             }
         ];
     }
@@ -491,19 +491,19 @@ class Scratch3MicroBitBlocks {
         return [
             {
                 text: formatMessage({
-                    id: 'microbit.pinStateMenu.on',
+                    id: 'junkbot.pinStateMenu.on',
                     default: 'on',
-                    description: 'label for on element in pin state picker for micro:bit extension'
+                    description: 'label for on element in pin state picker for Junkbot extension'
                 }),
-                value: MicroBitPinState.ON
+                value: JunkbotPinState.ON
             },
             {
                 text: formatMessage({
-                    id: 'microbit.pinStateMenu.off',
+                    id: 'junkbot.pinStateMenu.off',
                     default: 'off',
-                    description: 'label for off element in pin state picker for micro:bit extension'
+                    description: 'label for off element in pin state picker for Junkbot extension'
                 }),
-                value: MicroBitPinState.OFF
+                value: JunkbotPinState.OFF
             }
         ];
     }
@@ -515,35 +515,35 @@ class Scratch3MicroBitBlocks {
         return [
             {
                 text: formatMessage({
-                    id: 'microbit.tiltDirectionMenu.front',
+                    id: 'junkbot.tiltDirectionMenu.front',
                     default: 'front',
-                    description: 'label for front element in tilt direction picker for micro:bit extension'
+                    description: 'label for front element in tilt direction picker for Junkbot extension'
                 }),
-                value: MicroBitTiltDirection.FRONT
+                value: JunkbotTiltDirection.FRONT
             },
             {
                 text: formatMessage({
-                    id: 'microbit.tiltDirectionMenu.back',
+                    id: 'junkbot.tiltDirectionMenu.back',
                     default: 'back',
-                    description: 'label for back element in tilt direction picker for micro:bit extension'
+                    description: 'label for back element in tilt direction picker for Junkbot extension'
                 }),
-                value: MicroBitTiltDirection.BACK
+                value: JunkbotTiltDirection.BACK
             },
             {
                 text: formatMessage({
-                    id: 'microbit.tiltDirectionMenu.left',
+                    id: 'junkbot.tiltDirectionMenu.left',
                     default: 'left',
-                    description: 'label for left element in tilt direction picker for micro:bit extension'
+                    description: 'label for left element in tilt direction picker for Junkbot extension'
                 }),
-                value: MicroBitTiltDirection.LEFT
+                value: JunkbotTiltDirection.LEFT
             },
             {
                 text: formatMessage({
-                    id: 'microbit.tiltDirectionMenu.right',
+                    id: 'junkbot.tiltDirectionMenu.right',
                     default: 'right',
-                    description: 'label for right element in tilt direction picker for micro:bit extension'
+                    description: 'label for right element in tilt direction picker for Junkbot extension'
                 }),
-                value: MicroBitTiltDirection.RIGHT
+                value: JunkbotTiltDirection.RIGHT
             }
         ];
     }
@@ -556,11 +556,11 @@ class Scratch3MicroBitBlocks {
             ...this.TILT_DIRECTION_MENU,
             {
                 text: formatMessage({
-                    id: 'microbit.tiltDirectionMenu.any',
+                    id: 'junkbot.tiltDirectionMenu.any',
                     default: 'any',
-                    description: 'label for any direction element in tilt direction picker for micro:bit extension'
+                    description: 'label for any direction element in tilt direction picker for Junkbot extension'
                 }),
-                value: MicroBitTiltDirection.ANY
+                value: JunkbotTiltDirection.ANY
             }
         ];
     }
@@ -577,7 +577,7 @@ class Scratch3MicroBitBlocks {
         this.runtime = runtime;
 
         // Create a new MicroBit peripheral instance
-        this._peripheral = new MicroBit(this.runtime, Scratch3MicroBitBlocks.EXTENSION_ID);
+        this._peripheral = new Junkbot(this.runtime, Scratch3JunkbotBlocks.EXTENSION_ID);
     }
 
     /**
@@ -585,40 +585,40 @@ class Scratch3MicroBitBlocks {
      */
     getInfo () {
         return {
-            id: Scratch3MicroBitBlocks.EXTENSION_ID,
-            name: Scratch3MicroBitBlocks.EXTENSION_NAME,
+            id: Scratch3JunkbotBlocks.EXTENSION_ID,
+            name: Scratch3JunkbotBlocks.EXTENSION_NAME,
             blockIconURI: blockIconURI,
             showStatusButton: true,
             blocks: [
                 {
                     opcode: 'whenButtonPressed',
                     text: formatMessage({
-                        id: 'microbit.whenButtonPressed',
+                        id: 'junkbot.whenButtonPressed',
                         default: 'when [BTN] button pressed',
-                        description: 'when the selected button on the micro:bit is pressed'
+                        description: 'when the selected button on the Junkbot is pressed'
                     }),
                     blockType: BlockType.HAT,
                     arguments: {
                         BTN: {
                             type: ArgumentType.STRING,
                             menu: 'buttons',
-                            defaultValue: MicroBitButtons.A
+                            defaultValue: JunkbotButtons.A
                         }
                     }
                 },
                 {
                     opcode: 'isButtonPressed',
                     text: formatMessage({
-                        id: 'microbit.isButtonPressed',
+                        id: 'junkbot.isButtonPressed',
                         default: '[BTN] button pressed?',
-                        description: 'is the selected button on the micro:bit pressed?'
+                        description: 'is the selected button on the Junkbot pressed?'
                     }),
                     blockType: BlockType.BOOLEAN,
                     arguments: {
                         BTN: {
                             type: ArgumentType.STRING,
                             menu: 'buttons',
-                            defaultValue: MicroBitButtons.A
+                            defaultValue: JunkbotButtons.A
                         }
                     }
                 },
@@ -626,16 +626,16 @@ class Scratch3MicroBitBlocks {
                 {
                     opcode: 'whenGesture',
                     text: formatMessage({
-                        id: 'microbit.whenGesture',
+                        id: 'junkbot.whenGesture',
                         default: 'when [GESTURE]',
-                        description: 'when the selected gesture is detected by the micro:bit'
+                        description: 'when the selected gesture is detected by the Junkbot'
                     }),
                     blockType: BlockType.HAT,
                     arguments: {
                         GESTURE: {
                             type: ArgumentType.STRING,
                             menu: 'gestures',
-                            defaultValue: MicroBitGestures.MOVED
+                            defaultValue: JunkbotGestures.MOVED
                         }
                     }
                 },
@@ -643,9 +643,9 @@ class Scratch3MicroBitBlocks {
                 {
                     opcode: 'displaySymbol',
                     text: formatMessage({
-                        id: 'microbit.displaySymbol',
+                        id: 'junkbot.displaySymbol',
                         default: 'display [MATRIX]',
-                        description: 'display a pattern on the micro:bit display'
+                        description: 'display a pattern on the Junkbot display'
                     }),
                     blockType: BlockType.COMMAND,
                     arguments: {
@@ -658,23 +658,23 @@ class Scratch3MicroBitBlocks {
                 {
                     opcode: 'displayText',
                     text: formatMessage({
-                        id: 'microbit.displayText',
+                        id: 'junkbot.displayText',
                         default: 'display text [TEXT]',
-                        description: 'display text on the micro:bit display'
+                        description: 'display text on the Junkbot display'
                     }),
                     blockType: BlockType.COMMAND,
                     arguments: {
                         TEXT: {
                             type: ArgumentType.STRING,
                             defaultValue: formatMessage({
-                                id: 'microbit.defaultTextToDisplay',
+                                id: 'junkbot.defaultTextToDisplay',
                                 default: 'Hello!',
                                 description: `default text to display.
-                                IMPORTANT - the micro:bit only supports letters a-z, A-Z.
+                                IMPORTANT - the Junkbot only supports letters a-z, A-Z.
                                 Please substitute a default word in your language
                                 that can be written with those characters,
                                 substitute non-accented characters or leave it as "Hello!".
-                                Check the micro:bit site documentation for details`
+                                Check the Junkbot site documentation for details`
                             })
                         }
                     }
@@ -682,9 +682,9 @@ class Scratch3MicroBitBlocks {
                 {
                     opcode: 'displayClear',
                     text: formatMessage({
-                        id: 'microbit.clearDisplay',
+                        id: 'junkbot.clearDisplay',
                         default: 'clear display',
-                        description: 'display nothing on the micro:bit display'
+                        description: 'display nothing on the Junkbot display'
                     }),
                     blockType: BlockType.COMMAND
                 },
@@ -692,48 +692,48 @@ class Scratch3MicroBitBlocks {
                 {
                     opcode: 'whenTilted',
                     text: formatMessage({
-                        id: 'microbit.whenTilted',
+                        id: 'junkbot.whenTilted',
                         default: 'when tilted [DIRECTION]',
-                        description: 'when the micro:bit is tilted in a direction'
+                        description: 'when the Junkbot is tilted in a direction'
                     }),
                     blockType: BlockType.HAT,
                     arguments: {
                         DIRECTION: {
                             type: ArgumentType.STRING,
                             menu: 'tiltDirectionAny',
-                            defaultValue: MicroBitTiltDirection.ANY
+                            defaultValue: JunkbotTiltDirection.ANY
                         }
                     }
                 },
                 {
                     opcode: 'isTilted',
                     text: formatMessage({
-                        id: 'microbit.isTilted',
+                        id: 'junkbot.isTilted',
                         default: 'tilted [DIRECTION]?',
-                        description: 'is the micro:bit is tilted in a direction?'
+                        description: 'is the Junkbot is tilted in a direction?'
                     }),
                     blockType: BlockType.BOOLEAN,
                     arguments: {
                         DIRECTION: {
                             type: ArgumentType.STRING,
                             menu: 'tiltDirectionAny',
-                            defaultValue: MicroBitTiltDirection.ANY
+                            defaultValue: JunkbotTiltDirection.ANY
                         }
                     }
                 },
                 {
                     opcode: 'getTiltAngle',
                     text: formatMessage({
-                        id: 'microbit.tiltAngle',
+                        id: 'junkbot.tiltAngle',
                         default: 'tilt angle [DIRECTION]',
-                        description: 'how much the micro:bit is tilted in a direction'
+                        description: 'how much the Junkbot is tilted in a direction'
                     }),
                     blockType: BlockType.REPORTER,
                     arguments: {
                         DIRECTION: {
                             type: ArgumentType.STRING,
                             menu: 'tiltDirection',
-                            defaultValue: MicroBitTiltDirection.FRONT
+                            defaultValue: JunkbotTiltDirection.FRONT
                         }
                     }
                 },
@@ -741,7 +741,7 @@ class Scratch3MicroBitBlocks {
                 {
                     opcode: 'whenPinConnected',
                     text: formatMessage({
-                        id: 'microbit.whenPinConnected',
+                        id: 'junkbot.whenPinConnected',
                         default: 'when pin [PIN] connected',
                         description: 'when the pin detects a connection to Earth/Ground'
 
@@ -939,11 +939,11 @@ class Scratch3MicroBitBlocks {
      */
     _isTilted (direction) {
         switch (direction) {
-        case MicroBitTiltDirection.ANY:
-            return (Math.abs(this._peripheral.tiltX / 10) >= Scratch3MicroBitBlocks.TILT_THRESHOLD) ||
-                (Math.abs(this._peripheral.tiltY / 10) >= Scratch3MicroBitBlocks.TILT_THRESHOLD);
+        case JunkbotTiltDirection.ANY:
+            return (Math.abs(this._peripheral.tiltX / 10) >= Scratch3JunkbotBlocks.TILT_THRESHOLD) ||
+                (Math.abs(this._peripheral.tiltY / 10) >= Scratch3JunkbotBlocks.TILT_THRESHOLD);
         default:
-            return this._getTiltAngle(direction) >= Scratch3MicroBitBlocks.TILT_THRESHOLD;
+            return this._getTiltAngle(direction) >= Scratch3JunkbotBlocks.TILT_THRESHOLD;
         }
     }
 
@@ -955,13 +955,13 @@ class Scratch3MicroBitBlocks {
      */
     _getTiltAngle (direction) {
         switch (direction) {
-        case MicroBitTiltDirection.FRONT:
+        case JunkbotTiltDirection.FRONT:
             return Math.round(this._peripheral.tiltY / -10);
-        case MicroBitTiltDirection.BACK:
+        case JunkbotTiltDirection.BACK:
             return Math.round(this._peripheral.tiltY / 10);
-        case MicroBitTiltDirection.LEFT:
+        case JunkbotTiltDirection.LEFT:
             return Math.round(this._peripheral.tiltX / -10);
-        case MicroBitTiltDirection.RIGHT:
+        case JunkbotTiltDirection.RIGHT:
             return Math.round(this._peripheral.tiltX / 10);
         default:
             log.warn(`Unknown tilt direction in _getTiltAngle: ${direction}`);
@@ -981,4 +981,4 @@ class Scratch3MicroBitBlocks {
     }
 }
 
-module.exports = Scratch3MicroBitBlocks;
+module.exports = Scratch3JunkbotBlocks;
