@@ -306,15 +306,15 @@ class Junkbot {
 
     /**
      * Starts reading data from peripheral after BLE has connected to it.
-     *# @private
+     * @private
      */
-    /*_onConnect () {
+    _onConnect () {
         this._ble.read(BLEUUID.service, BLEUUID.rxChar, true, this._onMessage);
         this._timeoutID = window.setTimeout(
             () => this._ble.handleDisconnectError(BLEDataStoppedError),
             BLETimeout
         );
-    }*/
+    }
 
     /**
      * Process the sensor data from the incoming BLE characteristic.
@@ -411,7 +411,7 @@ class Scratch3JunkbotBlocks {
      * @return {string} - the name of this extension.
      */
     static get EXTENSION_NAME () {
-        return 'junkbot';
+        return 'JunkBot';
     }
 
     /**
