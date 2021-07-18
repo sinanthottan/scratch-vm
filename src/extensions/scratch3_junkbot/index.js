@@ -217,6 +217,7 @@ class Junkbot {
     scan () {
         if (this._ble) {
             this._ble.disconnect();
+						console.log("scan initiated");
         }
         this._ble = new BLE(this._runtime, this._extensionId, {
             filters: [
@@ -232,6 +233,7 @@ class Junkbot {
     connect (id) {
         if (this._ble) {
             this._ble.connectPeripheral(id);
+						console.log("connect success");
         }
     }
 
@@ -241,6 +243,7 @@ class Junkbot {
     disconnect () {
         if (this._ble) {
             this._ble.disconnect();
+						console.log("disconnect triggered");
         }
 
         this.reset();
@@ -318,6 +321,7 @@ class Junkbot {
 							this._ble.handleDisconnectError(BLEDataStoppedError),
             BLETimeout
 						console.log("disconnected");
+					}
         );
     }
 
