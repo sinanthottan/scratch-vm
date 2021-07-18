@@ -315,7 +315,6 @@ class Junkbot {
 				console.log("connected");
         this._timeoutID = window.setTimeout(
             () => this._ble.handleDisconnectError(BLEDataStoppedError),
-						console.log("reached ble timeout");
             BLETimeout
         );
     }
