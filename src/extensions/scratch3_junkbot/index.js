@@ -268,6 +268,7 @@ class Junkbot {
         if (this._ble) {
             connected = this._ble.isConnected();
 						console.log("is connected");
+						console.log(connected);
         }
         return connected;
     }
@@ -319,6 +320,8 @@ class Junkbot {
         this._timeoutID = window.setTimeout(
             () => this._ble.handleDisconnectError(BLEDataStoppedError),
             BLETimeout
+						console.log("disconnected");
+					}
         );
     }
 
