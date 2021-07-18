@@ -52,8 +52,8 @@ const BLEDataStoppedError = 'Junkbot extension stopped receiving data';
  */
 const BLEUUID = {
     service: 0xFFE0,
-		rxChar: '5261da01-fa7e-42ab-850b-7c80220097cc',
-    txChar: '5261da02-fa7e-42ab-850b-7c80220097cc'
+		rxChar: '5BC65C28-EE23-E361-A2AE-98863516C2D1',
+    txChar: '5BC65C28-EE23-E361-A2AE-98863516C2D1'
 };
 
 /**
