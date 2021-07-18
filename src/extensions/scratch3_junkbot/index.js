@@ -53,7 +53,7 @@ const BLEDataStoppedError = 'Junkbot extension stopped receiving data';
 const BLEUUID = {
     service: 0xFFE0,
 		rxChar: 0xFFE1,
-    txChar: 0xFFE1
+    txChar: ''
 };
 
 /**
@@ -264,6 +264,7 @@ class Junkbot {
         let connected = false;
         if (this._ble) {
             connected = this._ble.isConnected();
+						console.log("is connected");
         }
         return connected;
     }
@@ -276,6 +277,7 @@ class Junkbot {
     send (command, message) {
         if (!this.isConnected()) return;
         if (this._busy) return;
+				console.log("trying to send message");
 
         // Set a busy flag so that while we are sending a message and waiting for
         // the response, additional messages are ignored.
@@ -310,8 +312,10 @@ class Junkbot {
      */
     _onConnect () {
         this._ble.read(BLEUUID.service, BLEUUID.rxChar, true, this._onMessage);
+				console.log("connected");
         this._timeoutID = window.setTimeout(
             () => this._ble.handleDisconnectError(BLEDataStoppedError),
+						console.log("reached ble timeout");
             BLETimeout
         );
     }
