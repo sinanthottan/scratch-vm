@@ -320,8 +320,6 @@ class Junkbot {
         this._timeoutID = window.setTimeout(
             () => this._ble.handleDisconnectError(BLEDataStoppedError),
             BLETimeout
-						console.log("disconnected");
-					}
         );
     }
 
@@ -334,26 +332,26 @@ class Junkbot {
         // parse data
         const data = Base64Util.base64ToUint8Array(base64);
 
-        this._sensors.tiltX = data[1] | (data[0] << 8);
-        if (this._sensors.tiltX > (1 << 15)) this._sensors.tiltX -= (1 << 16);
-        this._sensors.tiltY = data[3] | (data[2] << 8);
-        if (this._sensors.tiltY > (1 << 15)) this._sensors.tiltY -= (1 << 16);
+        //this._sensors.tiltX = data[1] | (data[0] << 8);
+        //if (this._sensors.tiltX > (1 << 15)) this._sensors.tiltX -= (1 << 16);
+        //this._sensors.tiltY = data[3] | (data[2] << 8);
+        //if (this._sensors.tiltY > (1 << 15)) this._sensors.tiltY -= (1 << 16);
 
-        this._sensors.buttonA = data[4];
-        this._sensors.buttonB = data[5];
+        //this._sensors.buttonA = data[4];
+        //this._sensors.buttonB = data[5];
 
-        this._sensors.touchPins[0] = data[6];
-        this._sensors.touchPins[1] = data[7];
-        this._sensors.touchPins[2] = data[8];
+        //this._sensors.touchPins[0] = data[6];
+        //this._sensors.touchPins[1] = data[7];
+        //this._sensors.touchPins[2] = data[8];
 
-        this._sensors.gestureState = data[9];
+        //this._sensors.gestureState = data[9];
 
         // cancel disconnect timeout and start a new one
-        window.clearTimeout(this._timeoutID);
-        this._timeoutID = window.setTimeout(
-            () => this._ble.handleDisconnectError(BLEDataStoppedError),
-            BLETimeout
-        );
+        //window.clearTimeout(this._timeoutID);
+        //this._timeoutID = window.setTimeout(
+        //    () => this._ble.handleDisconnectError(BLEDataStoppedError),
+      //      BLETimeout
+      //  );
     }
 
     /**
