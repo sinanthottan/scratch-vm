@@ -309,10 +309,10 @@ class Junkbot {
         for (let i = 0; i < message.length; i++) {
             output[i + 1] = message[i];
         }
-        const data = Base64Util.uint8ArrayToBase64(output);
-				console.log(data);
+        //const data = Base64Util.uint8ArrayToBase64(output);
+				console.log(output);
 
-        this._ble.write(BLEUUID.service, BLEUUID.txChar, data, 'base64', false).then(
+        this._ble.write(BLEUUID.service, BLEUUID.txChar, output, '', false).then(
             () => {
                 this._busy = false;
 								console.log("data sent");
