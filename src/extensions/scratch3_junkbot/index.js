@@ -628,14 +628,14 @@ class Scratch3JunkbotBlocks {
                     opcode: 'displayText',
                     text: formatMessage({
                         id: 'junkbot.displayText',
-                        default: 'set digital pin 13 [STATUS]',
+                        default: 'set digital pin 13 [VALUE]',
                         description: 'display text on the Junkbot display'
                     }),
                     blockType: BlockType.COMMAND,
 										arguments: {
-                        STATUS: {
+                        VALUE: {
                             type: ArgumentType.STRING,
-                            menu: 'setStatus',
+                            menu: 'setValue',
                             defaultValue: 'HIGH'
                         }
 										}
@@ -742,7 +742,7 @@ class Scratch3JunkbotBlocks {
                     acceptReporters: true,
                     items: ['0', '1', '2']
                 },
-								setStatus: {
+								setValue: {
                     acceptReporters: true,
                     items: ['HIGH', 'LOW']
                 }
@@ -838,7 +838,7 @@ class Scratch3JunkbotBlocks {
      * 1px before the string, and 5px after the string.
      */
     displayText (args) {
-        const text = String(args.STATUS).substring(0, 19);
+        const text = String(args.VALUE).substring(0, 19);
         if (text.length > 0) this._peripheral.displayText(text);
         const yieldDelay = 120 * ((6 * text.length) + 6);
 
