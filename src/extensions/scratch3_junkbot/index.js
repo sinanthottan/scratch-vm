@@ -23,14 +23,14 @@ const BLECommand = {
     CMD_PIN_CONFIG: 0x80,
     CMD_DISPLAY_TEXT: 0x81,
     CMD_DISPLAY_LED: 0x82,
-		START_SYS = 0xF0,
-		SET_OUTPUT = 0xF1,
-		SET_SERVO = 0xF2,
-		SET_PWM = 0xF3,
-		SET_ANIM = 0xF4,
-		SET_RGB = 0xF5,
-		DFP_MSG = 0xF6,
-		END_SYS = 0xF7,
+		START_SYS: 0xF0,
+		SET_OUTPUT: 0xF1,
+		SET_SERVO: 0xF2,
+		SET_PWM: 0xF3,
+		SET_ANIM: 0xF4,
+		SET_RGB: 0xF5,
+		DFP_MSG: 0xF6,
+		END_SYS: 0xF7
 };
 
 
