@@ -431,6 +431,10 @@ const JunkbotDigitalPort = {
 		B6: ['13']
 };
 
+function millis(){
+	return Date.now() - startTime;
+}
+
 /**
  * Enum for micro:bit gestures.
  * @readonly
