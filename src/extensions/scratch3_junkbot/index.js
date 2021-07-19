@@ -144,7 +144,7 @@ class Junkbot {
          */
         this._busyTimeoutID = null;
 
-        this.reset = this.reset.bind(this);
+        //this.reset = this.reset.bind(this);
         this._onConnect = this._onConnect.bind(this);
         this._onMessage = this._onMessage.bind(this);
     }
