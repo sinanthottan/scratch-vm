@@ -367,27 +367,10 @@ class Junkbot {
      * @param {object} base64 - the incoming BLE data.
      * @private
      */
-    _onMessage (msg) {
+    _onMessage (base64) {
         // parse data
         //const data = Base64Util.base64ToUint8Array(base64);
-				dataArray = JSON.parse(msg.data);
-				//console.log(msg);
-				try {
-					DigitalInByte = dataArray.data[1];
-					Distance = dataArray.data[2];
-					PotValue = dataArray.data[3];
-					LightValue = dataArray.data[4];
-					Servo1Pos = dataArray.data[5];
-					Servo2Pos = dataArray.data[6];
-					RGB1.r = dataArray.data[7];
-					RGB1.g = dataArray.data[8];
-					RGB1.b = dataArray.data[9];
-					RGB2.r = dataArray.data[10];
-					RGB2.g = dataArray.data[11];
-					RGB2.b = dataArray.data[12];
-
-				}
-				catch(err){;}
+				
 
         //this._sensors.tiltX = data[1] | (data[0] << 8);
         //if (this._sensors.tiltX > (1 << 15)) this._sensors.tiltX -= (1 << 16);
