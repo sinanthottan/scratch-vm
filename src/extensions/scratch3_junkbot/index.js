@@ -255,6 +255,7 @@ class Junkbot {
     reset () {
         if (this._timeoutID) {
             window.clearTimeout(this._timeoutID);
+						console.log("reset initiated");
             this._timeoutID = null;
         }
     }
@@ -319,10 +320,11 @@ class Junkbot {
     _onConnect () {
         this._ble.read(BLEUUID.service, BLEUUID.rxChar, true, this._onMessage);
 				console.log("connected");
-        this._timeoutID = window.setTimeout(
+      /*  this._timeoutID = window.setTimeout(
             () => this._ble.handleDisconnectError(BLEDataStoppedError),
             BLETimeout
         );
+				*/
     }
 
     /**
