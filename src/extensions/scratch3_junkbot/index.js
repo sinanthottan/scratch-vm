@@ -30,7 +30,7 @@ const BLECommand = {
 		SET_ANIM = 0xF4,
 		SET_RGB = 0xF5,
 		DFP_MSG = 0xF6,
-		END_SYS = 0xF7;
+		END_SYS = 0xF7,
 };
 
 
