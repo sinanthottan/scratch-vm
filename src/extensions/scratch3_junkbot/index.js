@@ -166,7 +166,7 @@ class Junkbot {
         for (let i = 0; i < text.length; i++) {
             output[i] = text.charCodeAt(i);
         }
-        return this.send(BLECommand.SET_OUTPUT, output);
+        return this.send(BLECommand.SET_OUTPUT, text);
     }
 
     /**
