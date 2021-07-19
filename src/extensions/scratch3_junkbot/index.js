@@ -370,7 +370,7 @@ class Junkbot {
     _onMessage (base64) {
         // parse data
         //const data = Base64Util.base64ToUint8Array(base64);
-				
+
 
         //this._sensors.tiltX = data[1] | (data[0] << 8);
         //if (this._sensors.tiltX > (1 << 15)) this._sensors.tiltX -= (1 << 16);
@@ -829,7 +829,7 @@ class Scratch3JunkbotBlocks {
                 },
 								setPort: {
 									acceptReporters: true,
-									items: this.PORT_MENU
+									items: this.PORTS_MENU
 								}
 
             }
