@@ -664,6 +664,8 @@ class Scratch3JunkbotBlocks {
          * @type {Runtime}
          */
         this.runtime = runtime;
+				startTime = Date.now();
+				this.lastMillis = 0;
 
         // Create a new MicroBit peripheral instance
         this._peripheral = new Junkbot(this.runtime, Scratch3JunkbotBlocks.EXTENSION_ID);
