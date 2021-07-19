@@ -22,7 +22,15 @@ const blockIconURI = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAKcAAACnCAYA
 const BLECommand = {
     CMD_PIN_CONFIG: 0x80,
     CMD_DISPLAY_TEXT: 0x81,
-    CMD_DISPLAY_LED: 0x82
+    CMD_DISPLAY_LED: 0x82,
+		START_SYS = 0xF0,
+		SET_OUTPUT = 0xF1,
+		SET_SERVO = 0xF2,
+		SET_PWM = 0xF3,
+		SET_ANIM = 0xF4,
+		SET_RGB = 0xF5,
+		DFP_MSG = 0xF6,
+		END_SYS = 0xF7;
 };
 
 
@@ -53,7 +61,7 @@ const BLEDataStoppedError = 'Junkbot extension stopped receiving data';
 const BLEUUID = {
     service: 0xFFE0,
 		rxChar: 0xFFE1,
-    txChar: ''
+    txChar: 0xFFE1
 };
 
 /**
@@ -158,7 +166,7 @@ class Junkbot {
         for (let i = 0; i < text.length; i++) {
             output[i] = text.charCodeAt(i);
         }
-        return this.send(BLECommand.CMD_DISPLAY_TEXT, output);
+        return this.send(BLECommand.SET_OUTPUT, output);
     }
 
     /**
@@ -304,7 +312,7 @@ class Junkbot {
         const data = Base64Util.uint8ArrayToBase64(output);
 				console.log(data);
 
-        this._ble.write(BLEUUID.service, BLEUUID.txChar, data, 'base64', true).then(
+        this._ble.write(BLEUUID.service, BLEUUID.txChar, data, 'base64', false).then(
             () => {
                 this._busy = false;
 								console.log("data sent");

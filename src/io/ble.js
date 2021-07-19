@@ -159,6 +159,8 @@ class BLE extends JSONRPC {
         return this.sendRemoteRequest('write', params)
             .catch(e => {
                 this.handleDisconnectError(e);
+                console.log(JSON.stringify(params));
+                console.log(JSON.stringify(e));
             });
     }
 
