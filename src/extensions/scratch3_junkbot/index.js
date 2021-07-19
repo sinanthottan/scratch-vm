@@ -378,6 +378,21 @@ const JunkbotTiltDirection = {
 };
 
 /**
+ * Enum for Digital PIN.
+ * @readonly
+ * @enum {string}
+ */
+const JunkbotDigitalPin = {
+    6: '6',
+    7: '7',
+		8: '8',
+		9: '9',
+		10: '10',
+		11: '11',
+		12: '12',
+		13: '13'
+};
+/**
  * Enum for micro:bit gestures.
  * @readonly
  * @enum {string}
@@ -598,93 +613,20 @@ class Scratch3JunkbotBlocks {
             showStatusButton: true,
             blocks: [
                 {
-                    opcode: 'whenButtonPressed',
-                    text: formatMessage({
-                        id: 'junkbot.whenButtonPressed',
-                        default: 'when [BTN] button pressed',
-                        description: 'when the selected button on the Junkbot is pressed'
-                    }),
-                    blockType: BlockType.HAT,
-                    arguments: {
-                        BTN: {
-                            type: ArgumentType.STRING,
-                            menu: 'buttons',
-                            defaultValue: JunkbotButtons.A
-                        }
-                    }
-                },
-                {
-                    opcode: 'isButtonPressed',
-                    text: formatMessage({
-                        id: 'junkbot.isButtonPressed',
-                        default: '[BTN] button pressed?',
-                        description: 'is the selected button on the Junkbot pressed?'
-                    }),
-                    blockType: BlockType.BOOLEAN,
-                    arguments: {
-                        BTN: {
-                            type: ArgumentType.STRING,
-                            menu: 'buttons',
-                            defaultValue: JunkbotButtons.A
-                        }
-                    }
-                },
-                '---',
-                {
-                    opcode: 'whenGesture',
-                    text: formatMessage({
-                        id: 'junkbot.whenGesture',
-                        default: 'when [GESTURE]',
-                        description: 'when the selected gesture is detected by the Junkbot'
-                    }),
-                    blockType: BlockType.HAT,
-                    arguments: {
-                        GESTURE: {
-                            type: ArgumentType.STRING,
-                            menu: 'gestures',
-                            defaultValue: JunkbotGestures.MOVED
-                        }
-                    }
-                },
-                '---',
-                {
-                    opcode: 'displaySymbol',
-                    text: formatMessage({
-                        id: 'junkbot.displaySymbol',
-                        default: 'display [MATRIX]',
-                        description: 'display a pattern on the Junkbot display'
-                    }),
-                    blockType: BlockType.COMMAND,
-                    arguments: {
-                        MATRIX: {
-                            type: ArgumentType.MATRIX,
-                            defaultValue: '0101010101100010101000100'
-                        }
-                    }
-                },
-                {
                     opcode: 'displayText',
                     text: formatMessage({
                         id: 'junkbot.displayText',
-                        default: 'display text [TEXT]',
+                        default: 'set digital pin 13 [STATUS]',
                         description: 'display text on the Junkbot display'
                     }),
                     blockType: BlockType.COMMAND,
-                    arguments: {
-                        TEXT: {
+										arguments: {
+                        STATUS: {
                             type: ArgumentType.STRING,
-                            defaultValue: formatMessage({
-                                id: 'junkbot.defaultTextToDisplay',
-                                default: 'Hello!',
-                                description: `default text to display.
-                                IMPORTANT - the Junkbot only supports letters a-z, A-Z.
-                                Please substitute a default word in your language
-                                that can be written with those characters,
-                                substitute non-accented characters or leave it as "Hello!".
-                                Check the Junkbot site documentation for details`
-                            })
+                            menu: 'setStatus',
+                            defaultValue: 'HIGH'
                         }
-                    }
+										}
                 },
                 {
                     opcode: 'displayClear',
@@ -787,6 +729,10 @@ class Scratch3JunkbotBlocks {
                 touchPins: {
                     acceptReporters: true,
                     items: ['0', '1', '2']
+                },
+								setStatus: {
+                    acceptReporters: true,
+                    items: ['HIGH', 'LOW']
                 }
             }
         };
