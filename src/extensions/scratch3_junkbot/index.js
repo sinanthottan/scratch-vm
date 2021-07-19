@@ -939,7 +939,7 @@ class Scratch3JunkbotBlocks {
         const value = String(args.VALUE).substring(0, 19);
 				const pin = parseInt(args.PIN, 10);
         this._peripheral.digitalWrite(pin,value);
-        const yieldDelay = 120 * ((6 * text.length) + 6);
+        const yieldDelay = 120 * ((6 * value.length) + 6);
 
         return new Promise(resolve => {
             setTimeout(() => {
@@ -952,7 +952,7 @@ class Scratch3JunkbotBlocks {
         const state = String(args.STATE).substring(0, 19);
 				const pin = parseInt(args.PIN[0], 10);
         this._peripheral.jbDigitalWrite(pin,state);
-        const yielDelay = 120 * ((6 * text.length) + 6);
+        const yielDelay = 120 * ((6 * state.length) + 6);
 
         return new Promise(resolve => {
             setTimeout(() => {
