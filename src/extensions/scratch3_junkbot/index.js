@@ -304,15 +304,15 @@ class Junkbot {
             this._busy = false;
         }, 5000);
 
-        const output = new Uint8Array(message.length + 1);
-        output[0] = command; // attach command to beginning of message
-        for (let i = 0; i < message.length; i++) {
-            output[i + 1] = message[i];
-        }
+        //const output = new Uint8Array(message.length + 1);
+        //output[0] = command; // attach command to beginning of message
+        //for (let i = 0; i < message.length; i++) {
+        //    output[i + 1] = message[i];
+        //}
         //const data = Base64Util.uint8ArrayToBase64(output);
-				console.log(output);
+				console.log(message);
 
-        this._ble.write(BLEUUID.service, BLEUUID.txChar, output, '', false).then(
+        this._ble.write(BLEUUID.service, BLEUUID.txChar, message, '', false).then(
             () => {
                 this._busy = false;
 								console.log("data sent");
