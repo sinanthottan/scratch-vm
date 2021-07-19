@@ -5,6 +5,8 @@ const cast = require('../../util/cast');
 const formatMessage = require('format-message');
 const BLE = require('../../io/ble');
 const Base64Util = require('../../util/base64-util');
+const CRC = require('crc-full').CRC;
+var crc = new CRC("CRC16_XMODEM", 16, 0x1021, 0x0000, 0x0000, false, false);
 
 /**
  * Icon png to be displayed at the left edge of each extension block, encoded as a data URI.
@@ -169,6 +171,25 @@ class Junkbot {
         return this.send(BLECommand.SET_OUTPUT, text);
     }
 
+		/**
+     * @param {string} value - the value
+		 * @param {int} pin - the digital pin number
+     * @return {Promise} - a Promise that resolves when writing to peripheral.
+     */
+    digitalWrite (pin, value) {
+
+        return this.send(BLECommand.SET_OUTPUT, [value, pin]);
+    }
+
+		/**
+     * @param {string} value - the value
+		 * @param {int} pin - the digital pin number
+     * @return {Promise} - a Promise that resolves when writing to peripheral.
+     */
+    jbDigitalWrite (pin, value) {
+        return this.send(BLECommand.SET_OUTPUT, [value, pin]);
+    }
+
     /**
      * @param {Uint8Array} matrix - the matrix to display.
      * @return {Promise} - a Promise that resolves when writing to peripheral.
@@ -304,15 +325,21 @@ class Junkbot {
             this._busy = false;
         }, 5000);
 
+				mils = millis();
+				var data = [BLECommand.START_SYS, command, message[0], message[1], BLECommand.END_SYS];
+				var computed_crc = crc.compute(data);
+				data.push(computed_crc >> 8);
+				data.push(computed_crc & 0xFF);
+
         //const output = new Uint8Array(message.length + 1);
         //output[0] = command; // attach command to beginning of message
         //for (let i = 0; i < message.length; i++) {
         //    output[i + 1] = message[i];
         //}
         //const data = Base64Util.uint8ArrayToBase64(output);
-				console.log(message);
+				console.log(data);
 
-        this._ble.write(BLEUUID.service, BLEUUID.txChar, message, '', false).then(
+        this._ble.write(BLEUUID.service, BLEUUID.txChar, data, '', false).then(
             () => {
                 this._busy = false;
 								console.log("data sent");
@@ -340,9 +367,28 @@ class Junkbot {
      * @param {object} base64 - the incoming BLE data.
      * @private
      */
-    _onMessage (base64) {
+    _onMessage (msg) {
         // parse data
-        const data = Base64Util.base64ToUint8Array(base64);
+        //const data = Base64Util.base64ToUint8Array(base64);
+				dataArray = JSON.parse(msg.data);
+				//console.log(msg);
+				try {
+					DigitalInByte = dataArray.data[1];
+					Distance = dataArray.data[2];
+					PotValue = dataArray.data[3];
+					LightValue = dataArray.data[4];
+					Servo1Pos = dataArray.data[5];
+					Servo2Pos = dataArray.data[6];
+					RGB1.r = dataArray.data[7];
+					RGB1.g = dataArray.data[8];
+					RGB1.b = dataArray.data[9];
+					RGB2.r = dataArray.data[10];
+					RGB2.g = dataArray.data[11];
+					RGB2.b = dataArray.data[12];
+
+				}
+				catch(err){;}
+			}
 
         //this._sensors.tiltX = data[1] | (data[0] << 8);
         //if (this._sensors.tiltX > (1 << 15)) this._sensors.tiltX -= (1 << 16);
@@ -394,16 +440,15 @@ const JunkbotTiltDirection = {
  * @readonly
  * @enum {string}
  */
-const JunkbotDigitalPin = {
-    6: '6',
-    7: '7',
-		8: '8',
-		9: '9',
-		10: '10',
-		11: '11',
-		12: '12',
-		13: '13'
+const JunkbotDigitalPort = {
+    B1: ['6','7'],
+    B2: ['8','9'],
+		B3: ['10'],
+		B4: ['11'],
+		B5: ['12'],
+		B6: ['13']
 };
+
 /**
  * Enum for micro:bit gestures.
  * @readonly
@@ -599,6 +644,30 @@ class Scratch3JunkbotBlocks {
         ];
     }
 
+		/**
+     * @return {array} - text and values for each PORT menu element
+     */
+    get PORTS_MENU () {
+        return [
+						{
+                text: 'B3',
+                value: JunkbotDigitalPort.B3
+            },
+						{
+                text: 'B4',
+                value: JunkbotDigitalPort.B4
+            },
+						{
+                text: 'B5',
+                value: JunkbotDigitalPort.B5
+            },
+						{
+                text: 'B6',
+                value: JunkbotDigitalPort.B6
+            }
+        ];
+    }
+
     /**
      * Construct a set of MicroBit blocks.
      * @param {Runtime} runtime - the Scratch 3.0 runtime.
@@ -625,11 +694,11 @@ class Scratch3JunkbotBlocks {
             showStatusButton: true,
             blocks: [
                 {
-                    opcode: 'displayText',
+                    opcode: 'digitalWrite',
                     text: formatMessage({
-                        id: 'junkbot.displayText',
-                        default: 'set digital pin 13 [VALUE]',
-                        description: 'display text on the Junkbot display'
+                        id: 'junkbot.digitalWrite',
+                        default: 'set digital pin [PIN] output as [VALUE]',
+                        description: 'set value for digital pin'
                     }),
                     blockType: BlockType.COMMAND,
 										arguments: {
@@ -637,6 +706,32 @@ class Scratch3JunkbotBlocks {
                             type: ArgumentType.STRING,
                             menu: 'setValue',
                             defaultValue: 'HIGH'
+                        },
+												PIN: {
+                            type: ArgumentType.STRING,
+                            menu: 'setPin',
+                            defaultValue: '13'
+                        }
+										}
+                },
+								{
+                    opcode: 'jbDigitalWrite',
+                    text: formatMessage({
+                        id: 'junkbot.jbDigitalWrite',
+                        default: 'set port [PORT] output as [STATE]',
+                        description: 'set value for Junkbot Port'
+                    }),
+                    blockType: BlockType.COMMAND,
+										arguments: {
+                        STATE: {
+                            type: ArgumentType.STRING,
+                            menu: 'setValue',
+                            defaultValue: 'HIGH'
+                        },
+												PORT: {
+                            type: ArgumentType.STRING,
+                            menu: 'setPort',
+                            defaultValue: JunkbotDigitalPort.B6
                         }
 										}
                 },
@@ -745,7 +840,16 @@ class Scratch3JunkbotBlocks {
 								setValue: {
                     acceptReporters: true,
                     items: ['HIGH', 'LOW']
-                }
+                },
+								setPin: {
+                    acceptReporters: true,
+                    items: ['6', '7','8', '9', '10', '11', '12', '13']
+                },
+								setPort: {
+									acceptReporters: true,
+									items: this.PORT_MENU
+								}
+
             }
         };
     }
@@ -849,6 +953,32 @@ class Scratch3JunkbotBlocks {
         });
     }
 
+		digitalWrite (args) {
+        const value = String(args.VALUE).substring(0, 19);
+				const pin = parseInt(args.PIN, 10);
+        this._peripheral.digitalWrite(pin,value);
+        const yieldDelay = 120 * ((6 * text.length) + 6);
+
+        return new Promise(resolve => {
+            setTimeout(() => {
+                resolve();
+            }, yieldDelay);
+        });
+    }
+
+		jbDigitalWrite (args) {
+        const state = String(args.STATE).substring(0, 19);
+				const pin = parseInt(args.PIN[0], 10);
+        this._peripheral.jbDigitalWrite(pin,state);
+        const yielDelay = 120 * ((6 * text.length) + 6);
+
+        return new Promise(resolve => {
+            setTimeout(() => {
+                resolve();
+            }, yieldDelay);
+        });
+    }
+
     /**
      * Turn all 5x5 matrix LEDs off.
      * @return {Promise} - a Promise that resolves after a tick.
@@ -900,6 +1030,21 @@ class Scratch3JunkbotBlocks {
      * Test whether the tilt sensor is currently tilted.
      * @param {TiltDirection} direction - the tilt direction to test (front, back, left, right, or any).
      * @return {boolean} - true if the tilt sensor is tilted past a threshold in the specified direction.
+     * @private
+     */
+    _isTilted (direction) {
+        switch (direction) {
+        case JunkbotTiltDirection.ANY:
+            return (Math.abs(this._peripheral.tiltX / 10) >= Scratch3JunkbotBlocks.TILT_THRESHOLD) ||
+                (Math.abs(this._peripheral.tiltY / 10) >= Scratch3JunkbotBlocks.TILT_THRESHOLD);
+        default:
+            return this._getTiltAngle(direction) >= Scratch3JunkbotBlocks.TILT_THRESHOLD;
+        }
+    }
+		/**
+     * Read digital pin
+     * @param {PinNumber} number - the digital pin number
+     * @return {boolean} - true / false
      * @private
      */
     _isTilted (direction) {
