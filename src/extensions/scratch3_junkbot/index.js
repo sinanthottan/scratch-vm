@@ -838,7 +838,7 @@ class Scratch3JunkbotBlocks {
      * 1px before the string, and 5px after the string.
      */
     displayText (args) {
-        const text = String(args.TEXT).substring(0, 19);
+        const text = String(args.STATUS).substring(0, 19);
         if (text.length > 0) this._peripheral.displayText(text);
         const yieldDelay = 120 * ((6 * text.length) + 6);
 
