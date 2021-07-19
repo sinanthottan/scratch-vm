@@ -388,7 +388,6 @@ class Junkbot {
 
 				}
 				catch(err){;}
-			}
 
         //this._sensors.tiltX = data[1] | (data[0] << 8);
         //if (this._sensors.tiltX > (1 << 15)) this._sensors.tiltX -= (1 << 16);
