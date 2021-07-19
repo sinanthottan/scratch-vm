@@ -301,12 +301,12 @@ class Junkbot {
             output[i + 1] = message[i];
         }
         const data = Base64Util.uint8ArrayToBase64(output);
-				log.console(data);
+				console.log(data);
 
         this._ble.write(BLEUUID.service, BLEUUID.txChar, data, 'base64', true).then(
             () => {
                 this._busy = false;
-								log.console("data sent");
+								console.log("data sent");
                 window.clearTimeout(this._busyTimeoutID);
             }
         );
