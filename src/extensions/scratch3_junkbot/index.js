@@ -172,13 +172,13 @@ class Junkbot {
     }
 
 		/**
-     * @param {string} value - the value
+     * @param {array} value - the value
 		 * @param {int} pin - the digital pin number
      * @return {Promise} - a Promise that resolves when writing to peripheral.
      */
     digitalWrite (pin, value) {
 
-        return this.send(BLECommand.SET_OUTPUT, [value, pin]);
+        return this.send(BLECommand.SET_OUTPUT, [pin, value]);
     }
 
 		/**
@@ -326,20 +326,26 @@ class Junkbot {
         }, 5000);
 
 				mils = millis();
+				const msg = []
+				for (i=0; i< message.length; i++) {
+    			msg[i] = message[i]
+  			}
 				var data = [BLECommand.START_SYS, command, message[0], message[1], BLECommand.END_SYS];
-				var computed_crc = crc.compute(data);
-				data.push(computed_crc >> 8);
-				data.push(computed_crc & 0xFF);
+				//var computed_crc = crc.compute(data);
+				//data.push(computed_crc >> 8);
+				//data.push(computed_crc & 0xFF);
 
-        //const output = new Uint8Array(message.length + 1);
+        const output = new Uint8Array(data.length);
         //output[0] = command; // attach command to beginning of message
-        //for (let i = 0; i < message.length; i++) {
-        //    output[i + 1] = message[i];
-        //}
-        //const data = Base64Util.uint8ArrayToBase64(output);
-				console.log(data);
+        for (let i = 0; i < data.length; i++) {
+            output[i + 1] = data[i];
+        }
+				console.log("data:" + data);
 
-        this._ble.write(BLEUUID.service, BLEUUID.txChar, data, '', false).then(
+        //const data = Base64Util.uint8ArrayToBase64(output);
+				console.log("output:" + output);
+
+        this._ble.write(BLEUUID.service, BLEUUID.txChar, output, 'base64', false).then(
             () => {
                 this._busy = false;
 								console.log("data sent");
@@ -956,7 +962,7 @@ class Scratch3JunkbotBlocks {
 
 		jbDigitalWrite (args) {
         const state = String(args.STATE).substring(0, 19);
-				const pin = parseInt(args.PIN[0], 10);
+				const pin = parseInt(args.PORT[0], 10);
         this._peripheral.jbDigitalWrite(pin,state);
         const yielDelay = 120 * ((6 * state.length) + 6);
 
