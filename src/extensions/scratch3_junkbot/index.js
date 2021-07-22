@@ -330,22 +330,23 @@ class Junkbot {
 				for (i=0; i< message.length; i++) {
     			msg[i] = message[i]
   			}
-				var data = [BLECommand.START_SYS, command, message[0], message[1], BLECommand.END_SYS];
+				var output_array = [BLECommand.START_SYS, command, message[0], message[1], BLECommand.END_SYS];
 				//var computed_crc = crc.compute(data);
 				//data.push(computed_crc >> 8);
 				//data.push(computed_crc & 0xFF);
 
-        const output = new Uint8Array(data.length);
-        //output[0] = command; // attach command to beginning of message
-        for (let i = 0; i < data.length; i++) {
-            output[i + 1] = data[i];
-        }
-				console.log("data:" + data);
+        const output = new Uint8Array(output_array.length);
 
-        //const data = Base64Util.uint8ArrayToBase64(output);
+        //output[0] = command; // attach command to beginning of message
+        for (let i = 0; i < output_array.length; i++) {
+            output[i + 1] = output_array[i];
+        }
 				console.log("output:" + output);
 
-        this._ble.write(BLEUUID.service, BLEUUID.txChar, output, 'base64', false).then(
+        const data = Base64Util.uint8ArrayToBase64(output);
+				console.log("data:" + data);
+
+        this._ble.write(BLEUUID.service, BLEUUID.txChar, data, 'base64', false).then(
             () => {
                 this._busy = false;
 								console.log("data sent");
