@@ -341,7 +341,7 @@ class Junkbot {
         for (let i = 0; i < output_array.length; i++) {
             output[i + 1] = output_array[i];
         }
-				console.log("output:" + output);
+				console.log("output:" + output_arrray);
 
         const data = Base64Util.uint8ArrayToBase64(output);
 				console.log("data:" + data);
