@@ -346,7 +346,7 @@ class Junkbot {
         const data = Base64Util.uint8ArrayToBase64(output);
 				console.log("data:" + data);
 
-        this._ble.write(BLEUUID.service, BLEUUID.txChar, data, '', false).then(
+        this._ble.write(BLEUUID.service, BLEUUID.txChar, output_array, '', false).then(
             () => {
                 this._busy = false;
 								console.log("data sent");
