@@ -22,17 +22,17 @@ const blockIconURI = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAKcAAACnCAYA
  * @enum {number}
  */
 const BLECommand = {
-    CMD_PIN_CONFIG: 0x80,
-    CMD_DISPLAY_TEXT: 0x81,
-    CMD_DISPLAY_LED: 0x82,
 		START_SYS: 0xF0,
 		SET_OUTPUT: 0xF1,
 		SET_SERVO: 0xF2,
 		SET_PWM: 0xF3,
-		SET_ANIM: 0xF4,
-		SET_RGB: 0xF5,
-		DFP_MSG: 0xF6,
-		END_SYS: 0xF7
+		SET_RGB: 0xF4,
+		END_SYS: 0xF7,
+    READ_INPUT: 0xF8,
+    READ_DISTANCE: 0xF9,
+    PLAY_TONE: 0xE1,
+    READ_ANALOG: 0xE2,
+    SET_MOTOR: 0xE3
 };
 
 
@@ -104,35 +104,12 @@ class Junkbot {
          * @private
          */
         this._sensors = {
-            tiltX: 0,
-            tiltY: 0,
-            buttonA: 0,
-            buttonB: 0,
-            touchPins: [0, 0, 0],
-            gestureState: 0,
-            ledMatrixState: new Uint8Array(5)
+            digVal:0,
+            readDist:0,
+            getAnalog:0
         };
 
-        /**
-         * The most recently received value for each gesture.
-         * @type {Object.<string, Object>}
-         * @private
-         */
-        this._gestures = {
-            moving: false,
-            move: {
-                active: false,
-                timeout: false
-            },
-            shake: {
-                active: false,
-                timeout: false
-            },
-            jump: {
-                active: false,
-                timeout: false
-            }
-        };
+
 
         /**
          * Interval ID for data reading timeout.
@@ -159,85 +136,105 @@ class Junkbot {
         this._onMessage = this._onMessage.bind(this);
     }
 
-    /**
-     * @param {string} text - the text to display.
-     * @return {Promise} - a Promise that resolves when writing to peripheral.
-     */
-    displayText (text) {
-        const output = new Uint8Array(text.length);
-        for (let i = 0; i < text.length; i++) {
-            output[i] = text.charCodeAt(i);
-        }
-        return this.send(BLECommand.SET_OUTPUT, text);
-    }
-
 		/**
      * @param {array} value - the value
 		 * @param {int} pin - the digital pin number
      * @return {Promise} - a Promise that resolves when writing to peripheral.
      */
     digitalWrite (pin, value) {
-
         return this.send(BLECommand.SET_OUTPUT, [pin, value]);
     }
 
 		/**
-     * @param {string} value - the value
 		 * @param {int} pin - the digital pin number
      * @return {Promise} - a Promise that resolves when writing to peripheral.
      */
-    jbDigitalWrite (pin, value) {
-        return this.send(BLECommand.SET_OUTPUT, [value, pin]);
+    digitalRead (pin) {
+        return this.send(BLECommand.READ_INPUT, [pin]);
     }
 
     /**
-     * @param {Uint8Array} matrix - the matrix to display.
+		 * @param {int} pin - the digital pin number
      * @return {Promise} - a Promise that resolves when writing to peripheral.
      */
-    displayMatrix (matrix) {
-        return this.send(BLECommand.CMD_DISPLAY_LED, matrix);
+    readUltrasound (trigger,echo) {
+        return this.send(BLECommand.READ_DISTANCE, [trigger, echo]);
     }
 
     /**
-     * @return {number} - the latest value received for the tilt sensor's tilt about the X axis.
+     * @param {int} value - the value
+		 * @param {int} pin - the digital pin number
+     * @return {Promise} - a Promise that resolves when writing to peripheral.
      */
-    get tiltX () {
-        return this._sensors.tiltX;
+    setServo (pin, angle) {
+        return this.send(BLECommand.SET_SERVO, [pin, angle]);
     }
 
     /**
-     * @return {number} - the latest value received for the tilt sensor's tilt about the Y axis.
+     * @param {int} note - the note
+     * @param {int} beat - the beat
+		 * @param {int} pin - the digital pin number
+     * @return {Promise} - a Promise that resolves when writing to peripheral.
      */
-    get tiltY () {
-        return this._sensors.tiltY;
+    playTone (pin, note, beat) {
+        return this.send(BLECommand.PLAY_TONE, [pin, note, beat]);
     }
 
     /**
-     * @return {boolean} - the latest value received for the A button.
+     * @param {int} value - the PWM value
+		 * @param {int} pin - the digital pin number
+     * @return {Promise} - a Promise that resolves when writing to peripheral.
      */
-    get buttonA () {
-        return this._sensors.buttonA;
+    analogWrite (pin, value) {
+        return this.send(BLECommand.SET_PWM, [pin, value]);
     }
 
     /**
-     * @return {boolean} - the latest value received for the B button.
+     * @param {int} value1value2value3 - the PWM value
+		 * @param {int} pin1pin2pin3 - the digital pin number
+     * @return {Promise} - a Promise that resolves when writing to peripheral.
      */
-    get buttonB () {
-        return this._sensors.buttonB;
+    setRGB (pin1, value1, pin2, value2, pin3, value3) {
+        return this.send(BLECommand.SET_RGB, [pin1, value1, pin2, value2, pin3, value3]);
     }
 
     /**
-     * @return {number} - the latest value received for the motion gesture states.
+		 * @param {int} pin - the digital pin number
+     * @return {Promise} - a Promise that resolves when writing to peripheral.
      */
-    get gestureState () {
-        return this._sensors.gestureState;
+    analogRead (pin) {
+        return this.send(BLECommand.READ_ANALOG, [pin]);
+    }
+
+    /**
+     * @param {int} direction - the direction
+     * @param {int} speed - the speed
+		 * @param {int} pin - the digital pin number
+     * @return {Promise} - a Promise that resolves when writing to peripheral.
+     */
+    runMotor (pin, direction, speed) {
+        return this.send(BLECommand.SET_MOTOR, [pin, direction, speed]);
     }
 
     /**
      * @return {Uint8Array} - the current state of the 5x5 LED matrix.
      */
-    get ledMatrixState () {
-        return this._sensors.ledMatrixState;
+    get digVal () {
+        return this._sensors.digVal;
+    }
+
+    /**
+     * @return {Uint8Array} - the current state of the 5x5 LED matrix.
+     */
+    get getDistance () {
+        return this._sensors.readDist;
+    }
+
+    /**
+     * @return {Uint8Array} - the current state of the 5x5 LED matrix.
+     */
+    get getAnalog () {
+        return this._sensors.getAnalog;
     }
 
     /**
@@ -246,7 +243,7 @@ class Junkbot {
     scan () {
         if (this._ble) {
             this._ble.disconnect();
-						console.log("scan initiated");
+						//console.log("scan initiated");
         }
         this._ble = new BLE(this._runtime, this._extensionId, {
             filters: [
@@ -262,7 +259,7 @@ class Junkbot {
     connect (id) {
         if (this._ble) {
             this._ble.connectPeripheral(id);
-						console.log("connect success");
+						//console.log("connect success");
         }
     }
 
@@ -272,7 +269,7 @@ class Junkbot {
     disconnect () {
         if (this._ble) {
             this._ble.disconnect();
-						console.log("disconnect triggered");
+						//console.log("disconnect triggered");
         }
 
         this.reset();
@@ -284,7 +281,7 @@ class Junkbot {
     reset () {
         if (this._timeoutID) {
             window.clearTimeout(this._timeoutID);
-						console.log("reset initiated");
+						//console.log("reset initiated");
             this._timeoutID = null;
         }
     }
@@ -297,8 +294,8 @@ class Junkbot {
         let connected = false;
         if (this._ble) {
             connected = this._ble.isConnected();
-						console.log("is connected");
-						console.log(connected);
+					//	console.log("is connected");
+					//	console.log(connected);
         }
         return connected;
     }
@@ -311,7 +308,7 @@ class Junkbot {
     send (command, message) {
         if (!this.isConnected()) return;
         if (this._busy) return;
-				console.log("trying to send message");
+				//console.log("trying to send message");
 
         // Set a busy flag so that while we are sending a message and waiting for
         // the response, additional messages are ignored.
@@ -326,30 +323,16 @@ class Junkbot {
         }, 5000);
 
 				mils = millis();
-				const msg = []
-				for (i=0; i< message.length; i++) {
-    			msg[i] = message[i]
-  			}
-				var output_array = [BLECommand.START_SYS, command, message[0], message[1], BLECommand.END_SYS];
-				//var computed_crc = crc.compute(data);
-				//data.push(computed_crc >> 8);
-				//data.push(computed_crc & 0xFF);
-
-        const output = new Uint8Array(output_array.length);
-
-        //output[0] = command; // attach command to beginning of message
-        for (let i = 0; i < output_array.length; i++) {
-            output[i + 1] = output_array[i];
+        var data = BLECommand.START_SYS + ";" + command + ";";
+        for (let i = 0; i < message.length; i++) {
+            data += message[i] + ";";
         }
-				console.log("output:" + output_array);
-
-        const data = Base64Util.uint8ArrayToBase64(output);
-				console.log("data:" + data);
-
-        this._ble.write(BLEUUID.service, BLEUUID.txChar, output_array, '', false).then(
+        data += BLECommand.END_SYS + ";"
+        //console.log("data:" + data);
+        this._ble.write(BLEUUID.service, BLEUUID.txChar, data, '', false).then(
             () => {
                 this._busy = false;
-								console.log("data sent");
+								//console.log("data sent");
                 window.clearTimeout(this._busyTimeoutID);
             }
         );
@@ -361,7 +344,7 @@ class Junkbot {
      */
     _onConnect () {
         this._ble.read(BLEUUID.service, BLEUUID.rxChar, true, this._onMessage);
-				console.log("connected");
+				//console.log("connected");
       /*  this._timeoutID = window.setTimeout(
             () => this._ble.handleDisconnectError(BLEDataStoppedError),
             BLETimeout
@@ -376,22 +359,11 @@ class Junkbot {
      */
     _onMessage (base64) {
         // parse data
-        //const data = Base64Util.base64ToUint8Array(base64);
-
-
-        //this._sensors.tiltX = data[1] | (data[0] << 8);
-        //if (this._sensors.tiltX > (1 << 15)) this._sensors.tiltX -= (1 << 16);
-        //this._sensors.tiltY = data[3] | (data[2] << 8);
-        //if (this._sensors.tiltY > (1 << 15)) this._sensors.tiltY -= (1 << 16);
-
-        //this._sensors.buttonA = data[4];
-        //this._sensors.buttonB = data[5];
-
-        //this._sensors.touchPins[0] = data[6];
-        //this._sensors.touchPins[1] = data[7];
-        //this._sensors.touchPins[2] = data[8];
-
-        //this._sensors.gestureState = data[9];
+        const data = Base64Util.base64ToUint8Array(base64);
+        //console.log("return data:" + data);
+        this._sensors.digVal = data[1];
+        this._sensors.readDist = data[2];
+        this._sensors.getAnalog = data[3];
 
         // cancel disconnect timeout and start a new one
         //window.clearTimeout(this._timeoutID);
@@ -401,14 +373,6 @@ class Junkbot {
       //  );
     }
 
-    /**
-     * @param {number} pin - the pin to check touch state.
-     * @return {number} - the latest value received for the touch pin states.
-     * @private
-     */
-    _checkPinState (pin) {
-        return this._sensors.touchPins[pin];
-    }
 }
 
 /**
@@ -430,49 +394,66 @@ const JunkbotTiltDirection = {
  * @enum {string}
  */
 const JunkbotDigitalPort = {
-    B1: ['6','7'],
-    B2: ['8','9'],
-		B3: ['10'],
-		B4: ['11'],
-		B5: ['12'],
-		B6: ['13']
+    B1: '6',
+    B2: '8',
+		B3: '10',
+		B4: '11',
+		B5: '12',
+		B6: '13'
 };
+
+/**
+ * Enum for Digital PIN.
+ * @readonly
+ * @enum {string}
+ */
+const ToneNote = {
+    C2: '65',
+    D2: '73',
+    E2: '82',
+    F2: '87',
+    G2: '98',
+    A2: '110',
+    B2: '123',
+    C3: '131',
+    D3: '147',
+    E3: '165',
+    F3: '175',
+    G3: '196',
+    A3: '220',
+    B3: '247',
+    C4: '262',
+    D4: '294',
+    E4: '330',
+    F4: '349',
+    G4: '392',
+    A4: '440',
+    B4: '494'
+};
+
+/**
+ * Enum for Digital PIN.
+ * @readonly
+ * @enum {string}
+ */
+const ToneBeat = {
+    HALF: '500',
+    QUARTER: '250',
+    EIGHTH: '125',
+    WHOLE: '1000',
+    DOUBLE: '2000',
+    ZERO: '0'
+};
+/**
+ * Enum for Digital PIN.
+ * @readonly
+ * @enum {string}
+ */
+const DigitalPin = [6,7,8,9,10,11,12,13];
 
 function millis(){
 	return Date.now() - startTime;
 }
-
-/**
- * Enum for micro:bit gestures.
- * @readonly
- * @enum {string}
- */
-const JunkbotGestures = {
-    MOVED: 'moved',
-    SHAKEN: 'shaken',
-    JUMPED: 'jumped'
-};
-
-/**
- * Enum for micro:bit buttons.
- * @readonly
- * @enum {string}
- */
-const JunkbotButtons = {
-    A: 'A',
-    B: 'B',
-    ANY: 'any'
-};
-
-/**
- * Enum for micro:bit pin states.
- * @readonly
- * @enum {string}
- */
-const JunkbotPinState = {
-    ON: 'on',
-    OFF: 'off'
-};
 
 /**
  * Scratch 3.0 blocks to interact with a Junkbot peripheral.
@@ -493,156 +474,20 @@ class Scratch3JunkbotBlocks {
         return 'junkbot';
     }
 
-    /**
-     * @return {number} - the tilt sensor counts as "tilted" if its tilt angle meets or exceeds this threshold.
-     */
-    static get TILT_THRESHOLD () {
-        return 15;
-    }
-
-    /**
-     * @return {array} - text and values for each buttons menu element
-     */
-    get BUTTONS_MENU () {
-        return [
-            {
-                text: 'A',
-                value: JunkbotButtons.A
-            },
-            {
-                text: 'B',
-                value: JunkbotButtons.B
-            },
-            {
-                text: formatMessage({
-                    id: 'junkbot.buttonsMenu.any',
-                    default: 'any',
-                    description: 'label for "any" element in button picker for Junkbot extension'
-                }),
-                value: JunkbotButtons.ANY
-            }
-        ];
-    }
-
-    /**
-     * @return {array} - text and values for each gestures menu element
-     */
-    get GESTURES_MENU () {
-        return [
-            {
-                text: formatMessage({
-                    id: 'junkbot.gesturesMenu.moved',
-                    default: 'moved',
-                    description: 'label for moved gesture in gesture picker for Junkbot extension'
-                }),
-                value: JunkbotGestures.MOVED
-            },
-            {
-                text: formatMessage({
-                    id: 'junkbot.gesturesMenu.shaken',
-                    default: 'shaken',
-                    description: 'label for shaken gesture in gesture picker for Junkbot extension'
-                }),
-                value: JunkbotGestures.SHAKEN
-            },
-            {
-                text: formatMessage({
-                    id: 'junkbot.gesturesMenu.jumped',
-                    default: 'jumped',
-                    description: 'label for jumped gesture in gesture picker for Junkbot extension'
-                }),
-                value: JunkbotGestures.JUMPED
-            }
-        ];
-    }
-
-    /**
-     * @return {array} - text and values for each pin state menu element
-     */
-    get PIN_STATE_MENU () {
-        return [
-            {
-                text: formatMessage({
-                    id: 'junkbot.pinStateMenu.on',
-                    default: 'on',
-                    description: 'label for on element in pin state picker for Junkbot extension'
-                }),
-                value: JunkbotPinState.ON
-            },
-            {
-                text: formatMessage({
-                    id: 'junkbot.pinStateMenu.off',
-                    default: 'off',
-                    description: 'label for off element in pin state picker for Junkbot extension'
-                }),
-                value: JunkbotPinState.OFF
-            }
-        ];
-    }
-
-    /**
-     * @return {array} - text and values for each tilt direction menu element
-     */
-    get TILT_DIRECTION_MENU () {
-        return [
-            {
-                text: formatMessage({
-                    id: 'junkbot.tiltDirectionMenu.front',
-                    default: 'front',
-                    description: 'label for front element in tilt direction picker for Junkbot extension'
-                }),
-                value: JunkbotTiltDirection.FRONT
-            },
-            {
-                text: formatMessage({
-                    id: 'junkbot.tiltDirectionMenu.back',
-                    default: 'back',
-                    description: 'label for back element in tilt direction picker for Junkbot extension'
-                }),
-                value: JunkbotTiltDirection.BACK
-            },
-            {
-                text: formatMessage({
-                    id: 'junkbot.tiltDirectionMenu.left',
-                    default: 'left',
-                    description: 'label for left element in tilt direction picker for Junkbot extension'
-                }),
-                value: JunkbotTiltDirection.LEFT
-            },
-            {
-                text: formatMessage({
-                    id: 'junkbot.tiltDirectionMenu.right',
-                    default: 'right',
-                    description: 'label for right element in tilt direction picker for Junkbot extension'
-                }),
-                value: JunkbotTiltDirection.RIGHT
-            }
-        ];
-    }
-
-    /**
-     * @return {array} - text and values for each tilt direction (plus "any") menu element
-     */
-    get TILT_DIRECTION_ANY_MENU () {
-        return [
-            ...this.TILT_DIRECTION_MENU,
-            {
-                text: formatMessage({
-                    id: 'junkbot.tiltDirectionMenu.any',
-                    default: 'any',
-                    description: 'label for any direction element in tilt direction picker for Junkbot extension'
-                }),
-                value: JunkbotTiltDirection.ANY
-            }
-        ];
-    }
-
 		/**
      * @return {array} - text and values for each PORT menu element
      */
     get PORTS_MENU () {
         return [
-						{
+          {
+              text: 'B1',
+              value: JunkbotDigitalPort.B1
+          },
+          {
+              text: 'B2',
+              value: JunkbotDigitalPort.B2
+          },
+            {
                 text: 'B3',
                 value: JunkbotDigitalPort.B3
             },
@@ -657,6 +502,218 @@ class Scratch3JunkbotBlocks {
 						{
                 text: 'B6',
                 value: JunkbotDigitalPort.B6
+            }
+        ];
+    }
+
+    /**
+     * @return {array} - text and values for each PORT menu element
+     */
+    get PORTS_MENU_4PIN () {
+        return [
+          {
+              text: 'B1',
+              value: JunkbotDigitalPort.B1
+          },
+          {
+              text: 'B2',
+              value: JunkbotDigitalPort.B2
+          }
+        ];
+    }
+
+    /**
+     * @return {array} - text and values for each PORT menu element
+     */
+    get PORTS_MENU_3PIN () {
+        return [
+          {
+              text: 'B3',
+              value: JunkbotDigitalPort.B3
+          },
+          {
+              text: 'B4',
+              value: JunkbotDigitalPort.B4
+          },
+          {
+              text: 'B5',
+              value: JunkbotDigitalPort.B5
+          },
+          {
+              text: 'B6',
+              value: JunkbotDigitalPort.B6
+          }
+        ];
+    }
+
+    /**
+     * @return {array} - text and values for each PORT menu element
+     */
+    get VALUE_MENU () {
+        return [
+						{
+                text: 'HIGH',
+                value: '1'
+            },
+						{
+                text: 'LOW',
+                value: '0'
+            }
+        ];
+    }
+
+    /**
+     * @return {array} - text and values for each PORT menu element
+     */
+    get DIRECTION_ARRAY () {
+        return [
+						{
+                text: 'Clockwise',
+                value: '1'
+            },
+						{
+                text: 'Anti-Clockwise',
+                value: '0'
+            }
+        ];
+    }
+
+    /**
+     * @return {array} - text and values for each PORT menu element
+     */
+    get MOTOR_PORT () {
+        return [
+						{
+                text: 'A',
+                value: '2'
+            },
+						{
+                text: 'B',
+                value: '4'
+            }
+        ];
+    }
+
+    /**
+     * @return {array} - text and values for each PORT menu element
+     */
+    get BEATS () {
+        return [
+						{
+                text: 'Half',
+                value: ToneBeat.HALF
+            },
+						{
+                text: 'Quarter',
+                value: ToneBeat.QUARTER
+            },
+						{
+                text: 'Eighth',
+                value: ToneBeat.EIGHTH
+            },
+						{
+                text: 'Whole',
+                value: ToneBeat.WHOLE
+            },
+						{
+                text: 'Double',
+                value: ToneBeat.DOUBLE
+            },
+						{
+                text: 'Zero',
+                value: ToneBeat.ZERO
+            }
+        ];
+    }
+
+    /**
+     * @return {array} - text and values for each PORT menu element
+     */
+    get NOTES () {
+        return [
+						{
+                text: 'C2',
+                value: ToneNote.C2
+            },
+						{
+                text: 'D2',
+                value: ToneNote.D2
+            },
+						{
+                text: 'E2',
+                value: ToneNote.E2
+            },
+						{
+                text: 'F2',
+                value: ToneNote.F2
+            },
+						{
+                text: 'G2',
+                value: ToneNote.G2
+            },
+						{
+                text: 'A2',
+                value: ToneNote.A2
+            },
+						{
+                text: 'B2',
+                value: ToneNote.B2
+            },
+            {
+                text: 'C3',
+                value: ToneNote.C3
+            },
+						{
+                text: 'D3',
+                value: ToneNote.D3
+            },
+						{
+                text: 'E3',
+                value: ToneNote.E3
+            },
+						{
+                text: 'F3',
+                value: ToneNote.F3
+            },
+						{
+                text: 'G3',
+                value: ToneNote.G3
+            },
+						{
+                text: 'A3',
+                value: ToneNote.A3
+            },
+						{
+                text: 'B3',
+                value: ToneNote.B3
+            },
+            {
+                text: 'C4',
+                value: ToneNote.C4
+            },
+						{
+                text: 'D4',
+                value: ToneNote.D4
+            },
+						{
+                text: 'E4',
+                value: ToneNote.E4
+            },
+						{
+                text: 'F4',
+                value: ToneNote.F4
+            },
+						{
+                text: 'G4',
+                value: ToneNote.G4
+            },
+						{
+                text: 'A3',
+                value: ToneNote.C2
+            },
+						{
+                text: 'B4',
+                value: ToneNote.B4
             }
         ];
     }
@@ -688,19 +745,128 @@ class Scratch3JunkbotBlocks {
             blockIconURI: blockIconURI,
             showStatusButton: true,
             blocks: [
-                {
-                    opcode: 'digitalWrite',
+
+								{
+                    opcode: 'jbDigitalWrite',
                     text: formatMessage({
-                        id: 'junkbot.digitalWrite',
-                        default: 'set digital pin [PIN] output as [VALUE]',
+                        id: 'junkbot.jbDigitalWrite',
+                        default: 'set port [PIN] output as [STATE]',
+                        description: 'set value for Junkbot Port'
+                    }),
+                    blockType: BlockType.COMMAND,
+										arguments: {
+                        STATE: {
+                            type: ArgumentType.STRING,
+                            menu: 'setValue',
+                            defaultValue: '1'
+                        },
+												PIN: {
+                            type: ArgumentType.STRING,
+                            menu: 'setPort3Pin',
+                            defaultValue: JunkbotDigitalPort.B6
+                        }
+										}
+                },
+                {
+                    opcode: 'setServo',
+                    text: formatMessage({
+                        id: 'junkbot.setServo',
+                        default: 'set servo [PORT] angle as [ANGLE]',
+                        description: 'set angle for servo motor'
+                    }),
+                    blockType: BlockType.COMMAND,
+                    arguments: {
+                      PORT: {
+                          type: ArgumentType.STRING,
+                          menu: 'setPort3Pin',
+                          defaultValue: JunkbotDigitalPort.B6
+                      },
+                      ANGLE: {
+                          type: ArgumentType.STRING,
+                          defaultValue: "90"
+                      }
+                    }
+                },
+                {
+                    opcode: 'readUltrasound',
+                    text: formatMessage({
+                        id: 'junkbot.readUltrasound',
+                        default: 'read ultrasound sensor [PORT]',
+                        description: 'read distance from ultrasound sensor'
+                    }),
+                    blockType: BlockType.REPORTER,
+                    arguments: {
+                      PORT: {
+                          type: ArgumentType.STRING,
+                          menu: 'setPort4Pin',
+                          defaultValue: JunkbotDigitalPort.B1
+                      }
+                    }
+                },
+                {
+                    opcode: 'runMotor',
+                    text: formatMessage({
+                        id: 'junkbot.runMotor',
+                        default: 'move motor [MOTOR] direction [DIRECTION] speed [SPEED]',
                         description: 'set value for digital pin'
                     }),
                     blockType: BlockType.COMMAND,
 										arguments: {
-                        VALUE: {
+                        MOTOR: {
+                            type: ArgumentType.STRING,
+                            menu: 'setMotor',
+                            defaultValue: '2'
+                        },
+												DIRECTION: {
+                            type: ArgumentType.STRING,
+                            menu: 'setDirection',
+                            defaultValue: '1'
+                        },
+												SPEED: {
+                            type: ArgumentType.STRING,
+                            defaultValue: '255'
+                        }
+										}
+                },
+                {
+                    opcode: 'playTone',
+                    text: formatMessage({
+                        id: 'junkbot.playTone',
+                        default: 'play tone [PORT] on note [NOTE] beat [BEAT]',
+                        description: 'play tone with note and beat'
+                    }),
+                    blockType: BlockType.COMMAND,
+                    arguments: {
+                      PORT: {
+                          type: ArgumentType.STRING,
+                          menu: 'setPort3Pin',
+                          defaultValue: JunkbotDigitalPort.B6
+                      },
+                      NOTE: {
+                          type: ArgumentType.STRING,
+                          menu: 'setNote',
+                          defaultValue: ToneNote.C2
+                      },
+                      BEAT: {
+                          type: ArgumentType.STRING,
+                          menu: 'setBeat',
+                          defaultValue: ToneBeat.Half
+                      }
+                    }
+                },
+                {
+                    opcode: 'digitalWrite',
+                    text: formatMessage({
+                        id: 'junkbot.digitalWrite',
+                        default: 'set digital pin [PIN] output as [STATE]',
+                        description: 'set value for digital pin'
+                    }),
+                    blockType: BlockType.COMMAND,
+										arguments: {
+                        STATE: {
                             type: ArgumentType.STRING,
                             menu: 'setValue',
-                            defaultValue: 'HIGH'
+                            defaultValue: '1'
                         },
 												PIN: {
                             type: ArgumentType.STRING,
@@ -709,132 +875,100 @@ class Scratch3JunkbotBlocks {
                         }
 										}
                 },
-								{
-                    opcode: 'jbDigitalWrite',
+                {
+                    opcode: 'digitalRead',
                     text: formatMessage({
-                        id: 'junkbot.jbDigitalWrite',
-                        default: 'set port [PORT] output as [STATE]',
-                        description: 'set value for Junkbot Port'
+                        id: 'junkbot.digitalRead',
+                        default: 'read digital pin [PIN]',
+                        description: 'read the digital pin'
+                    }),
+                    blockType: BlockType.BOOLEAN,
+                    arguments: {
+                      PIN: {
+                          type: ArgumentType.STRING,
+                          menu: 'setPin',
+                          defaultValue: '13'
+                      }
+                    }
+                },
+                {
+                    opcode: 'analogWrite',
+                    text: formatMessage({
+                        id: 'junkbot.analogWrite',
+                        default: 'set pwm pin [PIN] output as [VALUE]',
+                        description: 'Set PWM pin'
                     }),
                     blockType: BlockType.COMMAND,
 										arguments: {
-                        STATE: {
+                        VALUE: {
                             type: ArgumentType.STRING,
-                            menu: 'setValue',
-                            defaultValue: 'HIGH'
+                            defaultValue: '0'
                         },
-												PORT: {
+												PIN: {
                             type: ArgumentType.STRING,
                             menu: 'setPort',
-                            defaultValue: JunkbotDigitalPort.B6
+                            defaultValue: JunkbotDigitalPort.B3
                         }
 										}
                 },
                 {
-                    opcode: 'displayClear',
+                    opcode: 'setRGB',
                     text: formatMessage({
-                        id: 'junkbot.clearDisplay',
-                        default: 'clear display',
-                        description: 'display nothing on the Junkbot display'
+                        id: 'junkbot.setRGB',
+                        default: 'set R[PIN1]-[VALUE1] G[PIN2]-[VALUE2] B[PIN3]-[VALUE3]',
+                        description: 'set value for digital pin'
                     }),
-                    blockType: BlockType.COMMAND
-                },
-                '---',
-                {
-                    opcode: 'whenTilted',
-                    text: formatMessage({
-                        id: 'junkbot.whenTilted',
-                        default: 'when tilted [DIRECTION]',
-                        description: 'when the Junkbot is tilted in a direction'
-                    }),
-                    blockType: BlockType.HAT,
-                    arguments: {
-                        DIRECTION: {
+                    blockType: BlockType.COMMAND,
+										arguments: {
+                        VALUE1: {
                             type: ArgumentType.STRING,
-                            menu: 'tiltDirectionAny',
-                            defaultValue: JunkbotTiltDirection.ANY
-                        }
-                    }
-                },
-                {
-                    opcode: 'isTilted',
-                    text: formatMessage({
-                        id: 'junkbot.isTilted',
-                        default: 'tilted [DIRECTION]?',
-                        description: 'is the Junkbot is tilted in a direction?'
-                    }),
-                    blockType: BlockType.BOOLEAN,
-                    arguments: {
-                        DIRECTION: {
+                            defaultValue: '255'
+                        },
+												PIN1: {
                             type: ArgumentType.STRING,
-                            menu: 'tiltDirectionAny',
-                            defaultValue: JunkbotTiltDirection.ANY
+                            menu: 'setPin',
+                            defaultValue: '8'
+                        },
+                        VALUE2: {
+                            type: ArgumentType.STRING,
+                            defaultValue: '255'
+                        },
+												PIN2: {
+                            type: ArgumentType.STRING,
+                            menu: 'setPin',
+                            defaultValue: '9'
+                        },
+                        VALUE3: {
+                            type: ArgumentType.STRING,
+                            defaultValue: '255'
+                        },
+												PIN3: {
+                            type: ArgumentType.STRING,
+                            menu: 'setPin',
+                            defaultValue: '10'
                         }
-                    }
+										}
                 },
                 {
-                    opcode: 'getTiltAngle',
+                    opcode: 'analogRead',
                     text: formatMessage({
-                        id: 'junkbot.tiltAngle',
-                        default: 'tilt angle [DIRECTION]',
-                        description: 'how much the Junkbot is tilted in a direction'
+                        id: 'junkbot.analogRead',
+                        default: 'read analog pin A [PIN]',
+                        description: 'read analog pin'
                     }),
                     blockType: BlockType.REPORTER,
                     arguments: {
-                        DIRECTION: {
-                            type: ArgumentType.STRING,
-                            menu: 'tiltDirection',
-                            defaultValue: JunkbotTiltDirection.FRONT
-                        }
-                    }
-                },
-                '---',
-                {
-                    opcode: 'whenPinConnected',
-                    text: formatMessage({
-                        id: 'junkbot.whenPinConnected',
-                        default: 'when pin [PIN] connected',
-                        description: 'when the pin detects a connection to Earth/Ground'
-
-                    }),
-                    blockType: BlockType.HAT,
-                    arguments: {
-                        PIN: {
-                            type: ArgumentType.STRING,
-                            menu: 'touchPins',
-                            defaultValue: '0'
-                        }
+                      PIN: {
+                          type: ArgumentType.STRING,
+                          defaultValue: '0'
+                      }
                     }
                 }
             ],
             menus: {
-                buttons: {
-                    acceptReporters: true,
-                    items: this.BUTTONS_MENU
-                },
-                gestures: {
-                    acceptReporters: true,
-                    items: this.GESTURES_MENU
-                },
-                pinState: {
-                    acceptReporters: true,
-                    items: this.PIN_STATE_MENU
-                },
-                tiltDirection: {
-                    acceptReporters: true,
-                    items: this.TILT_DIRECTION_MENU
-                },
-                tiltDirectionAny: {
-                    acceptReporters: true,
-                    items: this.TILT_DIRECTION_ANY_MENU
-                },
-                touchPins: {
-                    acceptReporters: true,
-                    items: ['0', '1', '2']
-                },
 								setValue: {
                     acceptReporters: true,
-                    items: ['HIGH', 'LOW']
+                    items: this.VALUE_MENU
                 },
 								setPin: {
                     acceptReporters: true,
@@ -843,8 +977,35 @@ class Scratch3JunkbotBlocks {
 								setPort: {
 									acceptReporters: true,
 									items: this.PORTS_MENU
+								},
+								setPort4Pin: {
+									acceptReporters: true,
+									items: this.PORTS_MENU_4PIN
+								},
+								setPort3Pin: {
+									acceptReporters: true,
+									items: this.PORTS_MENU_3PIN
+								},
+								setAngle: {
+                    acceptReporters: true,
+                    items: ['0', '45','90', '180', '360']
+                },
+								setNote: {
+                    acceptReporters: true,
+                    items: this.NOTES
+                },
+								setBeat: {
+                    acceptReporters: true,
+                    items: this.BEATS
+                },
+                setDirection: {
+									acceptReporters: true,
+									items: this.DIRECTION_ARRAY
+								},
+                setMotor: {
+									acceptReporters: true,
+									items: this.MOTOR_PORT
 								}
-
             }
         };
     }
@@ -852,104 +1013,10 @@ class Scratch3JunkbotBlocks {
     /**
      * Test whether the A or B button is pressed
      * @param {object} args - the block's arguments.
-     * @return {boolean} - true if the button is pressed.
+     * @return {Promise} - true if the button is pressed.
      */
-    whenButtonPressed (args) {
-        if (args.BTN === 'any') {
-            return this._peripheral.buttonA | this._peripheral.buttonB;
-        } else if (args.BTN === 'A') {
-            return this._peripheral.buttonA;
-        } else if (args.BTN === 'B') {
-            return this._peripheral.buttonB;
-        }
-        return false;
-    }
-
-    /**
-     * Test whether the A or B button is pressed
-     * @param {object} args - the block's arguments.
-     * @return {boolean} - true if the button is pressed.
-     */
-    isButtonPressed (args) {
-        if (args.BTN === 'any') {
-            return (this._peripheral.buttonA | this._peripheral.buttonB) !== 0;
-        } else if (args.BTN === 'A') {
-            return this._peripheral.buttonA !== 0;
-        } else if (args.BTN === 'B') {
-            return this._peripheral.buttonB !== 0;
-        }
-        return false;
-    }
-
-    /**
-     * Test whether the micro:bit is moving
-     * @param {object} args - the block's arguments.
-     * @return {boolean} - true if the micro:bit is moving.
-     */
-    whenGesture (args) {
-        const gesture = cast.toString(args.GESTURE);
-        if (gesture === 'moved') {
-            return (this._peripheral.gestureState >> 2) & 1;
-        } else if (gesture === 'shaken') {
-            return this._peripheral.gestureState & 1;
-        } else if (gesture === 'jumped') {
-            return (this._peripheral.gestureState >> 1) & 1;
-        }
-        return false;
-    }
-
-    /**
-     * Display a predefined symbol on the 5x5 LED matrix.
-     * @param {object} args - the block's arguments.
-     * @return {Promise} - a Promise that resolves after a tick.
-     */
-    displaySymbol (args) {
-        const symbol = cast.toString(args.MATRIX).replace(/\s/g, '');
-        const reducer = (accumulator, c, index) => {
-            const value = (c === '0') ? accumulator : accumulator + Math.pow(2, index);
-            return value;
-        };
-        const hex = symbol.split('').reduce(reducer, 0);
-        if (hex !== null) {
-            this._peripheral.ledMatrixState[0] = hex & 0x1F;
-            this._peripheral.ledMatrixState[1] = (hex >> 5) & 0x1F;
-            this._peripheral.ledMatrixState[2] = (hex >> 10) & 0x1F;
-            this._peripheral.ledMatrixState[3] = (hex >> 15) & 0x1F;
-            this._peripheral.ledMatrixState[4] = (hex >> 20) & 0x1F;
-            this._peripheral.displayMatrix(this._peripheral.ledMatrixState);
-        }
-
-        return new Promise(resolve => {
-            setTimeout(() => {
-                resolve();
-            }, BLESendInterval);
-        });
-    }
-
-    /**
-     * Display text on the 5x5 LED matrix.
-     * @param {object} args - the block's arguments.
-     * @return {Promise} - a Promise that resolves after the text is done printing.
-     * Note the limit is 19 characters
-     * The print time is calculated by multiplying the number of horizontal pixels
-     * by the default scroll delay of 120ms.
-     * The number of horizontal pixels = 6px for each character in the string,
-     * 1px before the string, and 5px after the string.
-     */
-    displayText (args) {
-        const text = String(args.VALUE).substring(0, 19);
-        if (text.length > 0) this._peripheral.displayText(text);
-        const yieldDelay = 120 * ((6 * text.length) + 6);
-
-        return new Promise(resolve => {
-            setTimeout(() => {
-                resolve();
-            }, yieldDelay);
-        });
-    }
-
 		digitalWrite (args) {
-        const value = String(args.VALUE).substring(0, 19);
+        const value = parseInt(args.STATE, 10);
 				const pin = parseInt(args.PIN, 10);
         this._peripheral.digitalWrite(pin,value);
         const yieldDelay = 120 * ((6 * value.length) + 6);
@@ -961,11 +1028,16 @@ class Scratch3JunkbotBlocks {
         });
     }
 
-		jbDigitalWrite (args) {
-        const state = String(args.STATE).substring(0, 19);
-				const pin = parseInt(args.PORT[0], 10);
-        this._peripheral.jbDigitalWrite(pin,state);
-        const yielDelay = 120 * ((6 * state.length) + 6);
+    /**
+     * Test whether the A or B button is pressed
+     * @param {object} args - the block's arguments.
+     * @return {Promise} - true if the button is pressed.
+     */
+    jbDigitalWrite (args) {
+        const value = String(args.STATE).substring(0, 19);
+				const pin = parseInt(args.PIN, 10);
+        this._peripheral.digitalWrite(pin,value);
+        const yieldDelay = 120 * ((6 * value.length) + 6);
 
         return new Promise(resolve => {
             setTimeout(() => {
@@ -975,114 +1047,168 @@ class Scratch3JunkbotBlocks {
     }
 
     /**
-     * Turn all 5x5 matrix LEDs off.
-     * @return {Promise} - a Promise that resolves after a tick.
+     * Test whether the A or B button is pressed
+     * @param {object} args - the block's arguments.
+     * @return {boolean} - true if the button is pressed.
      */
-    displayClear () {
-        for (let i = 0; i < 5; i++) {
-            this._peripheral.ledMatrixState[i] = 0;
+    digitalRead (args) {
+      //let pin_name = parseInt(args.PORT[0], 10);
+      let pin_name = parseInt(args.PIN, 10);
+      let pin = DigitalPin.indexOf(pin_name);
+      this._peripheral.digitalRead(pin);
+      let pattern = (0x01 << pin);
+      const yieldDelay = 1000;
+      return new Promise(resolve => {
+          setTimeout(() => {
+              resolve();
+          }, yieldDelay);
+      })
+      .then(output => {
+        let state = false;
+        let result = (pattern & this._peripheral.digVal);
+        if (pattern == result){
+          state = true;
         }
-        this._peripheral.displayMatrix(this._peripheral.ledMatrixState);
+        return state;
+      });
+
+    }
+
+    /**
+     * Test whether the A or B button is pressed
+     * @param {object} args - the block's arguments.
+     * @return {boolean} - true if the button is pressed.
+     */
+    analogRead (args) {
+      let pin = parseInt(args.PIN, 10);
+      this._peripheral.analogRead(pin);
+      const yieldDelay = 500;
+      return new Promise(resolve => {
+          setTimeout(() => {
+              resolve();
+          }, yieldDelay);
+      })
+      .then(output => {
+        return this._peripheral.getAnalog;
+      });
+
+    }
+
+
+    /**
+     * Test whether the A or B button is pressed
+     * @param {object} args - the block's arguments.
+     * @return {integer} - distance of ultrasound
+     */
+    readUltrasound (args) {
+      const echo = parseInt(args.PORT, 10);
+      const trigger = echo + 1;
+      this._peripheral.readUltrasound(trigger,echo);
+      const yieldDelay = 500;
+      return new Promise(resolve => {
+          setTimeout(() => {
+              resolve();
+          }, yieldDelay);
+      })
+      .then(output => {
+        return this._peripheral.getDistance;
+      });
+    }
+
+    /**
+     * Test whether the A or B button is pressed
+     * @param {object} args - the block's arguments.
+     * @return {Promise} - distance of ultrasound
+     */
+    setServo (args) {
+        const angle = parseInt(args.ANGLE, 10);
+				const pin = parseInt(args.PORT, 10);
+        this._peripheral.setServo(pin,angle);
+        const yieldDelay = 120 * ((6 * angle.length) + 6);
 
         return new Promise(resolve => {
             setTimeout(() => {
                 resolve();
-            }, BLESendInterval);
+            }, yieldDelay);
         });
     }
 
     /**
-     * Test whether the tilt sensor is currently tilted.
+     * Test whether the A or B button is pressed
      * @param {object} args - the block's arguments.
-     * @property {TiltDirection} DIRECTION - the tilt direction to test (front, back, left, right, or any).
-     * @return {boolean} - true if the tilt sensor is tilted past a threshold in the specified direction.
+     * @return {Promise} - distance of ultrasound
      */
-    whenTilted (args) {
-        return this._isTilted(args.DIRECTION);
+    playTone (args) {
+        const note = parseInt(args.NOTE, 10);
+        const beat = parseInt(args.BEAT, 10);
+				const pin = parseInt(args.PORT, 10);
+        this._peripheral.playTone(pin,note,beat);
+        const yieldDelay = beat;
+
+        return new Promise(resolve => {
+            setTimeout(() => {
+                resolve();
+            }, yieldDelay);
+        });
     }
 
     /**
-     * Test whether the tilt sensor is currently tilted.
+     * Test whether the A or B button is pressed
      * @param {object} args - the block's arguments.
-     * @property {TiltDirection} DIRECTION - the tilt direction to test (front, back, left, right, or any).
-     * @return {boolean} - true if the tilt sensor is tilted past a threshold in the specified direction.
+     * @return {Promise} - distance of ultrasound
      */
-    isTilted (args) {
-        return this._isTilted(args.DIRECTION);
+    analogWrite (args) {
+        const value = String(args.VALUE).substring(0, 19);
+				const pin = parseInt(args.PIN, 10);
+        this._peripheral.analogWrite(pin,value);
+        const yieldDelay = 120 * ((6 * value.length) + 6);
+
+        return new Promise(resolve => {
+            setTimeout(() => {
+                resolve();
+            }, yieldDelay);
+        });
     }
 
     /**
+     * Test whether the A or B button is pressed
      * @param {object} args - the block's arguments.
-     * @property {TiltDirection} DIRECTION - the direction (front, back, left, right) to check.
-     * @return {number} - the tilt sensor's angle in the specified direction.
-     * Note that getTiltAngle(front) = -getTiltAngle(back) and getTiltAngle(left) = -getTiltAngle(right).
+     * @return {Promise} - distance of ultrasound
      */
-    getTiltAngle (args) {
-        return this._getTiltAngle(args.DIRECTION);
+    setRGB (args) {
+        const value1 = String(args.VALUE1).substring(0, 19);
+				const pin1 = parseInt(args.PIN1, 10);
+        const value2 = String(args.VALUE2).substring(0, 19);
+				const pin2 = parseInt(args.PIN2, 10);
+        const value3 = String(args.VALUE3).substring(0, 19);
+				const pin3 = parseInt(args.PIN3, 10);
+        this._peripheral.setRGB(pin1,value1,pin2,value2,pin3,value3);
+        const yieldDelay = 120 * ((6 * value3.length) + 6);
+
+        return new Promise(resolve => {
+            setTimeout(() => {
+                resolve();
+            }, yieldDelay);
+        });
     }
 
     /**
-     * Test whether the tilt sensor is currently tilted.
-     * @param {TiltDirection} direction - the tilt direction to test (front, back, left, right, or any).
-     * @return {boolean} - true if the tilt sensor is tilted past a threshold in the specified direction.
-     * @private
-     */
-    _isTilted (direction) {
-        switch (direction) {
-        case JunkbotTiltDirection.ANY:
-            return (Math.abs(this._peripheral.tiltX / 10) >= Scratch3JunkbotBlocks.TILT_THRESHOLD) ||
-                (Math.abs(this._peripheral.tiltY / 10) >= Scratch3JunkbotBlocks.TILT_THRESHOLD);
-        default:
-            return this._getTiltAngle(direction) >= Scratch3JunkbotBlocks.TILT_THRESHOLD;
-        }
-    }
-		/**
-     * Read digital pin
-     * @param {PinNumber} number - the digital pin number
-     * @return {boolean} - true / false
-     * @private
-     */
-    _isTilted (direction) {
-        switch (direction) {
-        case JunkbotTiltDirection.ANY:
-            return (Math.abs(this._peripheral.tiltX / 10) >= Scratch3JunkbotBlocks.TILT_THRESHOLD) ||
-                (Math.abs(this._peripheral.tiltY / 10) >= Scratch3JunkbotBlocks.TILT_THRESHOLD);
-        default:
-            return this._getTiltAngle(direction) >= Scratch3JunkbotBlocks.TILT_THRESHOLD;
-        }
-    }
-
-    /**
-     * @param {TiltDirection} direction - the direction (front, back, left, right) to check.
-     * @return {number} - the tilt sensor's angle in the specified direction.
-     * Note that getTiltAngle(front) = -getTiltAngle(back) and getTiltAngle(left) = -getTiltAngle(right).
-     * @private
-     */
-    _getTiltAngle (direction) {
-        switch (direction) {
-        case JunkbotTiltDirection.FRONT:
-            return Math.round(this._peripheral.tiltY / -10);
-        case JunkbotTiltDirection.BACK:
-            return Math.round(this._peripheral.tiltY / 10);
-        case JunkbotTiltDirection.LEFT:
-            return Math.round(this._peripheral.tiltX / -10);
-        case JunkbotTiltDirection.RIGHT:
-            return Math.round(this._peripheral.tiltX / 10);
-        default:
-            log.warn(`Unknown tilt direction in _getTiltAngle: ${direction}`);
-        }
-    }
-
-    /**
+     * Test whether the A or B button is pressed
      * @param {object} args - the block's arguments.
-     * @return {boolean} - the touch pin state.
-     * @private
+     * @return {Promise} - distance of ultrasound
      */
-    whenPinConnected (args) {
-        const pin = parseInt(args.PIN, 10);
-        if (isNaN(pin)) return;
-        if (pin < 0 || pin > 2) return false;
-        return this._peripheral._checkPinState(pin);
+    runMotor (args) {
+        const pin = parseInt(args.MOTOR, 10);
+				const direction = parseInt(args.DIRECTION, 10);
+        const speed = parseInt(args.SPEED, 10);
+        this._peripheral.runMotor(pin, direction, speed);
+        const yieldDelay = 500;
+
+        return new Promise(resolve => {
+            setTimeout(() => {
+                resolve();
+            }, yieldDelay);
+        });
     }
 }
 
