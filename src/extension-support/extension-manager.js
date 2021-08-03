@@ -24,9 +24,7 @@ const builtinExtensions = {
     makeymakey: () => require('../extensions/scratch3_makeymakey'),
     boost: () => require('../extensions/scratch3_boost'),
     gdxfor: () => require('../extensions/scratch3_gdx_for'),
-    junkbot: () => require('../extensions/scratch3_junkbot'),
-    junkbot_bt: () => require('../extensions/scratch3_junkbot_bt'),
-    junkbot_usb: () => require('../extensions/scratch3_junkbot_usb')
+    junkbotble: () => require('../extensions/scratch3_junkbot')
 };
 
 /**

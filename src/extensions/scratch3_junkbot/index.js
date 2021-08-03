@@ -5,8 +5,7 @@ const cast = require('../../util/cast');
 const formatMessage = require('format-message');
 const BLE = require('../../io/ble');
 const Base64Util = require('../../util/base64-util');
-const CRC = require('crc-full').CRC;
-var crc = new CRC("CRC16_XMODEM", 16, 0x1021, 0x0000, 0x0000, false, false);
+
 
 /**
  * Icon png to be displayed at the left edge of each extension block, encoded as a data URI.
@@ -69,7 +68,7 @@ const BLEUUID = {
 /**
  * Manage communication with a MicroBit peripheral over a Scrath Link client socket.
  */
-class Junkbot {
+class JunkBot {
 
     /**
      * Construct a MicroBit communication object.
@@ -471,7 +470,7 @@ class Scratch3JunkbotBlocks {
      * @return {string} - the ID of this extension.
      */
     static get EXTENSION_ID () {
-        return 'junkbot';
+        return 'junkbotble';
     }
 
 		/**
@@ -732,7 +731,7 @@ class Scratch3JunkbotBlocks {
 				this.lastMillis = 0;
 
         // Create a new MicroBit peripheral instance
-        this._peripheral = new Junkbot(this.runtime, Scratch3JunkbotBlocks.EXTENSION_ID);
+        this._peripheral = new JunkBot(this.runtime, Scratch3JunkbotBlocks.EXTENSION_ID);
     }
 
     /**
@@ -749,7 +748,7 @@ class Scratch3JunkbotBlocks {
 								{
                     opcode: 'jbDigitalWrite',
                     text: formatMessage({
-                        id: 'junkbot.jbDigitalWrite',
+                        id: 'junkbotble.jbDigitalWrite',
                         default: 'set port [PIN] output as [STATE]',
                         description: 'set value for Junkbot Port'
                     }),
@@ -770,7 +769,7 @@ class Scratch3JunkbotBlocks {
                 {
                     opcode: 'setServo',
                     text: formatMessage({
-                        id: 'junkbot.setServo',
+                        id: 'junkbotble.setServo',
                         default: 'set servo [PORT] angle as [ANGLE]',
                         description: 'set angle for servo motor'
                     }),
@@ -790,7 +789,7 @@ class Scratch3JunkbotBlocks {
                 {
                     opcode: 'readUltrasound',
                     text: formatMessage({
-                        id: 'junkbot.readUltrasound',
+                        id: 'junkbotble.readUltrasound',
                         default: 'read ultrasound sensor [PORT]',
                         description: 'read distance from ultrasound sensor'
                     }),
@@ -806,7 +805,7 @@ class Scratch3JunkbotBlocks {
                 {
                     opcode: 'runMotor',
                     text: formatMessage({
-                        id: 'junkbot.runMotor',
+                        id: 'junkbotble.runMotor',
                         default: 'move motor [MOTOR] direction [DIRECTION] speed [SPEED]',
                         description: 'set value for digital pin'
                     }),
@@ -831,7 +830,7 @@ class Scratch3JunkbotBlocks {
                 {
                     opcode: 'playTone',
                     text: formatMessage({
-                        id: 'junkbot.playTone',
+                        id: 'junkbotble.playTone',
                         default: 'play tone [PORT] on note [NOTE] beat [BEAT]',
                         description: 'play tone with note and beat'
                     }),
@@ -857,7 +856,7 @@ class Scratch3JunkbotBlocks {
                 {
                     opcode: 'digitalWrite',
                     text: formatMessage({
-                        id: 'junkbot.digitalWrite',
+                        id: 'junkbotble.digitalWrite',
                         default: 'set digital pin [PIN] output as [STATE]',
                         description: 'set value for digital pin'
                     }),
@@ -878,7 +877,7 @@ class Scratch3JunkbotBlocks {
                 {
                     opcode: 'digitalRead',
                     text: formatMessage({
-                        id: 'junkbot.digitalRead',
+                        id: 'junkbotble.digitalRead',
                         default: 'read digital pin [PIN]',
                         description: 'read the digital pin'
                     }),
@@ -894,7 +893,7 @@ class Scratch3JunkbotBlocks {
                 {
                     opcode: 'analogWrite',
                     text: formatMessage({
-                        id: 'junkbot.analogWrite',
+                        id: 'junkbotble.analogWrite',
                         default: 'set pwm pin [PIN] output as [VALUE]',
                         description: 'Set PWM pin'
                     }),
@@ -914,7 +913,7 @@ class Scratch3JunkbotBlocks {
                 {
                     opcode: 'setRGB',
                     text: formatMessage({
-                        id: 'junkbot.setRGB',
+                        id: 'junkbotble.setRGB',
                         default: 'set R[PIN1]-[VALUE1] G[PIN2]-[VALUE2] B[PIN3]-[VALUE3]',
                         description: 'set value for digital pin'
                     }),
@@ -952,7 +951,7 @@ class Scratch3JunkbotBlocks {
                 {
                     opcode: 'analogRead',
                     text: formatMessage({
-                        id: 'junkbot.analogRead',
+                        id: 'junkbotble.analogRead',
                         default: 'read analog pin A [PIN]',
                         description: 'read analog pin'
                     }),
